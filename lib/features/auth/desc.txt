@@ -1,0 +1,3 @@
+Auth folder for having auth features, like authentication, OTP, login and logout, user info screen.
+
+Screens folder for having screens for login, signup etc
