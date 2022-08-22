@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // we use this provider ref to access this class and return instance of this class
 final commonFireBaseStorageRepoProvider = Provider((ref) {
   return CommonFireBaseStorageRepo(firebaseStorage: FirebaseStorage.instance);
+  // creating instance of this FirebaseStorage class when this provider called through ref
 });
 
 class CommonFireBaseStorageRepo {

@@ -61,15 +61,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size; // size of current screen
-    return SafeArea(
-      child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            title: const Text('Enter your phone number'),
-            elevation: 0,
-            backgroundColor: backgroundColor,
-          ),
-          body: Padding(
+    return Scaffold(
+        // resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: const Text('Enter your phone number'),
+          elevation: 0,
+          backgroundColor: backgroundColor,
+        ),
+        // adding this helps with bottom yellow lines which we resolved before  resizeToAvoidBottomInset property
+        body: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,8 +136,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
             ),
-          )),
-    );
+          ),
+        ));
   }
 }
 

@@ -25,7 +25,7 @@ final authRepositoryProvider = Provider((ref) {
 // AuthRepository is a class that will interact with the screens for this we use riverpod package with global provider
 // it does not depend on firebase or firestore instance but rather takes them as constructor parameters
 class AuthRepository {
-  final FirebaseAuth auth;
+  final FirebaseAuth auth; // for managing auth state and user data in firebase
   final FirebaseFirestore firestore;
 
   /// Get the current user data from Firestore database based on auth.currentUser and return UserModel object
@@ -44,7 +44,7 @@ class AuthRepository {
 
   AuthRepository({required this.auth, required this.firestore});
 
-  /// Implement SignIn with phone number with verification and checks
+  /// Implement SignIn with phone number with verification and checks. This auth instance will later be used to get user data from firestore database
   void signInWithPhone(
       {required BuildContext context, required String phoneNumber}) async {
     try {
@@ -122,10 +122,10 @@ class AuthRepository {
           uid: uid,
           profilePic: photoUrl,
           isOnline: true,
-          phoneNumber: auth.currentUser?.phoneNumber ?? "",
+          phoneNumber: auth.currentUser!.phoneNumber!,
           groupId: []);
 
-      // now we put this UserModel in firestore
+      // now we put this UserModel as document in firestore database with uid as the document id in collection named as users
       await firestore.collection('users').doc(uid).set(userModel.toMap());
 
       // now move to the MobileScreen as signIn and verification is done
