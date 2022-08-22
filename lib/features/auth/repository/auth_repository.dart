@@ -28,6 +28,20 @@ class AuthRepository {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
 
+  /// Get the current user data from Firestore database based on auth.currentUser and return UserModel object
+  Future<UserModel?> getUserData() async {
+    // this userData is in map format inserted in savaUserDataFirestore() method
+    var userData =
+        await firestore.collection('users').doc(auth.currentUser?.uid).get();
+    // this uid is by firebase
+    UserModel? user;
+    // check if map not null
+    if (userData.data() != null) {
+      user = UserModel.fromMap(userData.data()!); // can be null
+    }
+    return user;
+  }
+
   AuthRepository({required this.auth, required this.firestore});
 
   /// Implement SignIn with phone number with verification and checks
@@ -111,7 +125,7 @@ class AuthRepository {
           phoneNumber: auth.currentUser?.phoneNumber ?? "",
           groupId: []);
 
-      // now we put this user model in firestore
+      // now we put this UserModel in firestore
       await firestore.collection('users').doc(uid).set(userModel.toMap());
 
       // now move to the MobileScreen as signIn and verification is done

@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatsapp_ui/features/auth/repository/auth_repository.dart';
+import 'package:whatsapp_ui/models/user_model.dart';
 
 // All providers are global and have to be global
 
@@ -22,6 +23,17 @@ final authControllerProvider = Provider((ref) {
   // as we want this to passed in saveUserDataFirestore() method
 });
 
+final userDataProvider = FutureProvider((ref) {
+  // here we wnt to return  authController user data and we cant use normal provider as getUserData() returns Future
+  // so we use FutureProvider. We first watch() the authControllerProvider and then we get the user data from authController
+  final userDataController = ref.watch(authControllerProvider);
+  return userDataController.getUserData();
+  // we use this controller to get user data for persistence
+
+  // Benefit of usign FutureProvider(of riverpod) is that it identifies the getUserData() method returns a future
+  // and so it is easier than configuring Provider to return a future.
+});
+
 class AuthController {
   final AuthRepository authRepository;
   final ProviderRef ref;
@@ -29,6 +41,12 @@ class AuthController {
     required this.authRepository,
     required this.ref,
   });
+
+  /// controller method for getting user data from firestore database by passing this to authRepository
+  Future<UserModel?> getUserData() async {
+    UserModel? user = await authRepository.getUserData();
+    return user;
+  }
 
   /// this controller method will be called from the login screen to send phone number to AuthRepository
   void signInWithPhone(BuildContext context, String phoneNumber) {
