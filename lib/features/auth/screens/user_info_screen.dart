@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:whatsapp_ui/features/auth/repository/auth_repository.dart';
 
 class UserInfoScreen extends ConsumerStatefulWidget {
   static const routeName = '/user-info-screen';
@@ -36,6 +37,7 @@ class _UserInfoScreenState extends ConsumerState<UserInfoScreen> {
       showSnackBar(context: context, message: 'Enter valid name');
       return;
     }
+    // ref is global provider we access through flutter_riverpod package
     ref
         .read(authControllerProvider)
         .saveUserDataFirestore(context, name, image);
