@@ -98,6 +98,7 @@ class AuthRepository {
       {required String name,
       required File? profilePic,
       required ProviderRef ref,
+      // ref to interact with commonFirebaseStorageRepo provider
       required BuildContext context}) async {
     // we need  ref to interact with other providers such as authControllerProvider
     try {
@@ -137,6 +138,21 @@ class AuthRepository {
       showSnackBar(context: context, message: e.toString());
     }
   }
+
+  /// method to return stream of mapped User model of snapshot of a user based on their uid for async operations
+  Stream<UserModel> userDataById(String userId) {
+    // here we use snapshots as it return Stream of snapshots which is useful for getting online/offline status of user otherwise we have to send request to firebase everytime
+    return firestore
+        .collection('users')
+        .doc(userId)
+        .snapshots()
+        .map((event) => UserModel.fromMap(event.data()!));
+    // from this snapshot, map the data passing even which is document<map<String,dynamic>> to UserModel class
+    // it wont be null as we ask only when it is not null. ! means it cannot be null
+  }
+
+  // In case of Future<T> we have to send constant requests to get dome data whereas here we can use Stream<T> that asynchronously looks for changes
+  // and returns a stream of data
 }
 
 // this this info in firebase docs

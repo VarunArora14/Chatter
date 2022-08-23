@@ -6,7 +6,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
-import 'package:whatsapp_ui/screens/mobile_chat_screen.dart';
+import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
 
 final selectContactRepositoryProvider = Provider((ref) {
   return SelectContactRepository(firestore: FirebaseFirestore.instance);
@@ -50,9 +50,12 @@ class SelectContactRepository {
         debugPrint(selectedNumber);
 
         if (selectedNumber == userData.phoneNumber) {
-          isFound =
-              true; // number found from all contacts so navigate to chat screen
-          Navigator.pushNamed(context, MobileChatScreen.routeName);
+          isFound = true;
+// number found from all contacts so navigate to chat screen. here we  pass arguments to chat screen for current user uid nd their profile pic
+          Navigator.pushNamed(context, MobileChatScreen.routeName, arguments: {
+            'name': userData.name,
+            'uid': userData.uid
+          }); // recieve these  arguments in router.dart
         }
 
         // check for not found number

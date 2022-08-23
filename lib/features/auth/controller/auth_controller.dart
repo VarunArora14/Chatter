@@ -11,6 +11,8 @@ import 'package:whatsapp_ui/models/user_model.dart';
 
 // All providers are global and have to be global
 
+// this providerdoes 2 things, watch authRepositoryProvider and if it changes then call this provider
+// and returns AuthController object taking authRepositoryProvider as constructor parameter along with ref
 final authControllerProvider = Provider((ref) {
   // to avoid passing AuthRepository as a constructor parameter we use riverpod package
   final authRepository =
@@ -65,10 +67,17 @@ class AuthController {
   /// this controller method binds the authRepository to the controller of saveUserData so that we can make controller interact with Screen while authRepository is not directly interacting with Screen
   void saveUserDataFirestore(
       BuildContext context, String name, File? profilePic) {
-    // we call this function in a widget and provides use with Widget ref but here we want ProviderRef
-    // so we take this from our class as contructor parameter
     authRepository.saveUserDataFirestore(
         name: name, profilePic: profilePic, ref: ref, context: context);
+  }
+  // IMP: if we call this function in a widget, it provides use with WidgetRef but here we want ProviderRef
+  // so we take this from our class as contructor parameter
+  // we want provider of other file to interact with this provider here for saveUserDataFirestore
+  // and not interact with widget
+
+  /// controller method for calling userData from authRepository which returns Stream of UserModel for async operations
+  Stream<UserModel> userDataById(String userId) {
+    return authRepository.userDataById(userId);
   }
 }
 // this controller will pass to the LoginScreen so we have to make sure it's instance available to the LoginScreen

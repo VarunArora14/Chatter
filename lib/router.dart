@@ -4,7 +4,7 @@ import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/user_info_screen.dart';
 import 'package:whatsapp_ui/features/select_contacts/screens/select_contact_screen.dart';
-import 'package:whatsapp_ui/screens/mobile_chat_screen.dart';
+import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
 
 /// function to route based on route name along with passing arguments
 Route<dynamic>? generateRoute(RouteSettings routeSettings) {
@@ -19,11 +19,17 @@ Route<dynamic>? generateRoute(RouteSettings routeSettings) {
         ),
       );
     case UserInfoScreen.routeName:
-      return MaterialPageRoute(builder: (_) => const UserInfoScreen());
+      return MaterialPageRoute(builder: (context) => const UserInfoScreen());
     case SelectContactScreen.routeName:
-      return MaterialPageRoute(builder: (_) => const SelectContactScreen());
+      return MaterialPageRoute(
+          builder: (context) => const SelectContactScreen());
     case MobileChatScreen.routeName:
-      return MaterialPageRoute(builder: (_) => const MobileChatScreen());
+      final arguments = routeSettings.arguments as Map<String, dynamic>;
+      final name = arguments['name']; // extracting name and uid from map
+      final uid = arguments['uid']; // pass both to MobileChatScreen
+      // as we passed arguments as map in select contact screen
+      return MaterialPageRoute(
+          builder: (context) => MobileChatScreen(name: name, uid: uid));
     default:
       return MaterialPageRoute(
           builder: (context) =>
