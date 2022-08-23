@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 
 import 'package:whatsapp_ui/features/chat/repo/chat_repo.dart';
+import 'package:whatsapp_ui/models/chat_contact_model.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
 
 final chatControllerProvider = Provider((ref) {
@@ -19,6 +21,12 @@ class ChatController {
     required this.ref,
   });
 
+  /// controller method to get contacts of current user displayed on contact_screen
+  Stream<List<ChatContactModel>> getChatContacts() {
+    return chatRepository.getChatContacts();
+  }
+
+  /// controller method to send text message to the reciever via chatRepository
   void sendTextMessage(BuildContext context, String messageText, String recieverId) {
     ref.read(userDataProvider).whenData((value) => chatRepository.sendTextMessage(
         context: context, text: messageText, recieverId: recieverId, senderUser: value!));

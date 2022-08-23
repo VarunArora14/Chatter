@@ -23,6 +23,28 @@ class ChatRepository {
     required this.auth,
   });
 
+  /// return stream of chat contacts of current user
+  Stream<List<ChatContactModel>> getChatContacts() {
+    // since we want stream, we use .snapshots() instead of .docs()
+    return firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid) // show contact list messages of current user
+        .collection('chats')
+        .snapshots() // want stream so snapshots otherwise .docs(), asyncMap better than map() as it returns a stream
+        .asyncMap((event) async {
+      List<ChatContactModel> chatContactMessages = [];
+      // go through each chat contact and get the name, profile pic, time sent, contact id and last message
+      // loop through every query snapshot and get the document snapshot using which we will be able to convert it to chat contact
+      for (var document in event.docs) {
+        // event is of type QuerySnapshot which contains 0 or more document snapshots
+        var chatContact = ChatContactModel.fromMap(document.data()); // convert map from doc to chat contact model
+        chatContactMessages.add(chatContact); // insert all chatContacts into this list
+      }
+      return chatContactMessages; // return the list of chat contacts to the contact_list file
+      // this returned list will be broadcasted to the stream builder in contact_list file
+    });
+  }
+
   /// private method accesible from sendTextMessage() to display new messages on top of screen for both sender and receiver
   void _saveDataToContactSubcollection(
       UserModel sender, UserModel reciever, String messageText, DateTime timeSent) async {

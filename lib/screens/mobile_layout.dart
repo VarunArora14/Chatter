@@ -16,9 +16,9 @@ class MobileLayout extends StatelessWidget {
             title: const Text(
               'Chatter',
               style: TextStyle(
-                color: Colors.grey,
+                color: Colors.white70,
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
             actions: [
