@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/common/widgets/loader.dart';
 import 'package:whatsapp_ui/constants/colors.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/info.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
 import 'package:whatsapp_ui/widgets/chat_list.dart';
 
@@ -13,8 +12,7 @@ class MobileChatScreen extends ConsumerWidget {
   static const routeName = '/mobile-chat-screen';
   final String name;
   final String uid;
-  const MobileChatScreen({Key? key, required this.name, required this.uid})
-      : super(key: key);
+  const MobileChatScreen({Key? key, required this.name, required this.uid}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,10 +42,7 @@ class MobileChatScreen extends ConsumerWidget {
                 Text(
                   snapshot.data!.isOnline ? 'Online' : 'Offline',
                   textAlign: TextAlign.left,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white70),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.white70),
                 ),
               ],
             );
@@ -70,14 +65,14 @@ class MobileChatScreen extends ConsumerWidget {
         ],
       ),
       body: Column(
-        children: const [
-          Expanded(
+        children: [
+          const Expanded(
             child: ChatList(),
           ),
-          SizedBox(
+          const SizedBox(
             height: 1,
           ),
-          BottomChatField(),
+          BottomChatField(recieverId: uid), // pass uid of reciever contact as parameter
         ],
       ),
     );

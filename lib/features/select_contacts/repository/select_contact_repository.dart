@@ -1,9 +1,9 @@
 // based on this repository file we will have our UI as we want to show contacts based on user contact list
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
 import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
@@ -32,8 +32,8 @@ class SelectContactRepository {
     return contacts;
   }
 
-  /// method for selecting contact and checking if contact in database and based on that take to their chat screen or show snackbar error
-  void selectContact(BuildContext context, Contact selectedContact) async {
+  /// method for selecting reciever contact and checking if contact in database and based on that take to their chat screen or show snackbar error
+  void selectContact(BuildContext context, Contact selectedRecieverContact) async {
     try {
       // check if current Contact phoneNuber matches with any in database
       var userCollection = await firestore.collection('users').get();
@@ -45,24 +45,20 @@ class SelectContactRepository {
         var userMap = document.data(); // this has the map of user
         var userData = UserModel.fromMap(userMap); // convert map to UserModel
         // user phone number stored as +{country code}{phone number} with no spaces
-        String selectedNumber = selectedContact.phones[0].number
-            .replaceAll(' ', ''); // replace all spaces with empty string
+        String selectedNumber =
+            selectedRecieverContact.phones[0].number.replaceAll(' ', ''); // replace all spaces with empty string
         debugPrint(selectedNumber);
 
         if (selectedNumber == userData.phoneNumber) {
           isFound = true;
 // number found from all contacts so navigate to chat screen. here we  pass arguments to chat screen for current user uid nd their profile pic
-          Navigator.pushNamed(context, MobileChatScreen.routeName, arguments: {
-            'name': userData.name,
-            'uid': userData.uid
-          }); // recieve these  arguments in router.dart
+          Navigator.pushNamed(context, MobileChatScreen.routeName,
+              arguments: {'name': userData.name, 'uid': userData.uid}); // recieve these  arguments in router.dart
         }
 
         // check for not found number
         if (!isFound) {
-          showSnackBar(
-              context: context,
-              message: 'This number does not exist on this app');
+          showSnackBar(context: context, message: 'This number does not exist on this app');
         }
       }
     } catch (e) {

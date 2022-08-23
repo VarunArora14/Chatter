@@ -15,13 +15,10 @@ import 'package:whatsapp_ui/models/user_model.dart';
 // and returns AuthController object taking authRepositoryProvider as constructor parameter along with ref
 final authControllerProvider = Provider((ref) {
   // to avoid passing AuthRepository as a constructor parameter we use riverpod package
-  final authRepository =
-      ref.watch(authRepositoryProvider); // will return AuthRepository instance
+  final authRepository = ref.watch(authRepositoryProvider); // will return AuthRepository instance
 
   // ref.watch is equivalent of Provider.of<TypeName>(context)
-  return AuthController(
-      authRepository: authRepository,
-      ref: ref); // this ref is ProviderRef and not WidgetRef
+  return AuthController(authRepository: authRepository, ref: ref); // this ref is ProviderRef and not WidgetRef
   // as we want this to passed in saveUserDataFirestore() method
 });
 
@@ -57,25 +54,24 @@ class AuthController {
 
   /// controller method to send verify otp request to AuthRepository
   void verifyOTP(BuildContext context, String verificationId, String otp) {
-    authRepository.verifyOTP(
-        context: context, verificationId: verificationId, otp: otp);
+    authRepository.verifyOTP(context: context, verificationId: verificationId, otp: otp);
   }
 
   // bind the authRepository to the controller of saveUserData so that we can make controller interact
   // with screen while authRepository is not directly interacting with screen
 
-  /// this controller method binds the authRepository to the controller of saveUserData so that we can make controller interact with Screen while authRepository is not directly interacting with Screen
-  void saveUserDataFirestore(
-      BuildContext context, String name, File? profilePic) {
-    authRepository.saveUserDataFirestore(
-        name: name, profilePic: profilePic, ref: ref, context: context);
+  /// this controller method binds the authRepository to the controller of saveUserData so that we can make
+  ///  controller interact with Screen while authRepository is not directly interacting with Screen
+  void saveUserDataFirestore(BuildContext context, String name, File? profilePic) {
+    authRepository.saveUserDataFirestore(name: name, profilePic: profilePic, ref: ref, context: context);
   }
   // IMP: if we call this function in a widget, it provides use with WidgetRef but here we want ProviderRef
   // so we take this from our class as contructor parameter
   // we want provider of other file to interact with this provider here for saveUserDataFirestore
   // and not interact with widget
 
-  /// controller method for calling userData from authRepository which returns Stream of UserModel for async operations
+  /// controller method for calling userData from authRepository which returns Stream of UserModel for async
+  ///  operations
   Stream<UserModel> userDataById(String userId) {
     return authRepository.userDataById(userId);
   }

@@ -1,1 +1,0 @@
-Contains the common widgets which can be used anywhere in the application.

@@ -1,29 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:whatsapp_ui/constants/colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
 
 // Convert to stateful for icon changing and state changes of just this BottomField and not whole screen
-class BottomChatField extends StatefulWidget {
+class BottomChatField extends ConsumerStatefulWidget {
+  final String recieverId;
   const BottomChatField({
     Key? key,
+    required this.recieverId,
   }) : super(key: key);
 
   @override
-  State<BottomChatField> createState() => _BottomChatFieldState();
+  ConsumerState<BottomChatField> createState() => _BottomChatFieldState();
 }
 
-class _BottomChatFieldState extends State<BottomChatField> {
-  final textController = TextEditingController();
-  Icon bottomIcon = const Icon(
-    Icons.keyboard_voice,
-    color: Colors.white,
-  );
+class _BottomChatFieldState extends ConsumerState<BottomChatField> {
+  final _textController = TextEditingController();
   bool showSendButton = false;
+
+  void sendTextMessage() async {
+    // async as time to read, create instances and then the function
+    // check if message can be sent or not
+    if (showSendButton == true) {
+      // trim extra whitespaces after end
+      ref.read(chatControllerProvider).sendTextMessage(context, _textController.text.trim(), widget.recieverId);
+      setState(() {
+        _textController.clear(); // clear the textfield after sending message
+      });
+    }
+  }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    textController.dispose();
+    _textController.dispose();
   }
 
   @override
@@ -33,7 +44,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
         Expanded(
           // so textField does not take all the space
           child: TextField(
-            controller: textController,
+            controller: _textController,
             onChanged: (value) {
               if (value.isNotEmpty) {
                 showSendButton = true;
@@ -56,8 +67,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                     children: [
                       IconButton(
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                        constraints:
-                            const BoxConstraints(maxWidth: 40, minWidth: 30),
+                        constraints: const BoxConstraints(maxWidth: 40, minWidth: 30),
                         // splashRadius: 10,
                         onPressed: () {},
                         icon: Icon(
@@ -97,8 +107,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                     IconButton(
                       onPressed: () {},
                       padding: const EdgeInsets.symmetric(horizontal: 0),
-                      constraints:
-                          const BoxConstraints(maxWidth: 38, minWidth: 38),
+                      constraints: const BoxConstraints(maxWidth: 38, minWidth: 38),
                       icon: Icon(
                         Icons.attach_file_rounded,
                         color: Colors.grey[600],
@@ -121,22 +130,15 @@ class _BottomChatFieldState extends State<BottomChatField> {
         Padding(
           padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
           child: CircleAvatar(
-            backgroundColor: const Color(0xFF128C7E),
-            radius: 25,
-            child: showSendButton
-                ? IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    ))
-                : IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.keyboard_voice_rounded,
-                      color: Colors.white,
-                    )),
-          ),
+              backgroundColor: const Color(0xFF128C7E),
+              radius: 25,
+              child: GestureDetector(
+                onTap: sendTextMessage,
+                child: Icon(
+                  showSendButton == true ? Icons.send : Icons.keyboard_voice_rounded,
+                  color: Colors.white,
+                ),
+              )),
         )
       ],
     );

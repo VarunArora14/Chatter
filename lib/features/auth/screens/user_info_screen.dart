@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/auth/repository/auth_repository.dart';
 
 class UserInfoScreen extends ConsumerStatefulWidget {
   static const routeName = '/user-info-screen';
@@ -38,9 +37,7 @@ class _UserInfoScreenState extends ConsumerState<UserInfoScreen> {
       return;
     }
     // ref is global provider we access through flutter_riverpod package
-    ref
-        .read(authControllerProvider)
-        .saveUserDataFirestore(context, name, image);
+    ref.read(authControllerProvider).saveUserDataFirestore(context, name, image);
   }
 
   @override
@@ -62,16 +59,14 @@ class _UserInfoScreenState extends ConsumerState<UserInfoScreen> {
                       )
                     : CircleAvatar(
                         radius: 80,
-                        backgroundImage: FileImage(
-                            image!), // can be nullable though we have a check
+                        backgroundImage: FileImage(image!), // can be nullable though we have a check
                       ),
                 Positioned(
                   bottom: 10,
                   left: 120,
                   child: IconButton(
                     onPressed: selectImage,
-                    icon: const Icon(Icons.add_a_photo_rounded,
-                        color: Colors.white70),
+                    icon: const Icon(Icons.add_a_photo_rounded, color: Colors.white70),
                   ),
                 ),
               ],
@@ -83,8 +78,7 @@ class _UserInfoScreenState extends ConsumerState<UserInfoScreen> {
                   padding: const EdgeInsets.all(20),
                   child: TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
-                        hintText: 'Please enter  your name'),
+                    decoration: const InputDecoration(hintText: 'Please enter  your name'),
                   ),
                 ),
                 IconButton(

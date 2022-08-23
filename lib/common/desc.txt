@@ -1,2 +1,0 @@
-This folder "common" will have all the common elements of our application like any enum, repo containing API, to firebase,
-uitlity files, provider etc
