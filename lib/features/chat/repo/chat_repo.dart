@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -186,8 +188,28 @@ class ChatRepository {
     }
   }
 
-  // this function cannot be tested bcos we use buildcontext here and then display errors, If we used Future<String>
-  // and if string was returned if success or not then we can test this function
+  // the above function cannot be tested bcos we use buildcontext here and then display errors, If we used
+  // Future<String> and if string was returned if success or not then we can test this function
+
+  void sendFileMessage({
+    required BuildContext context,
+    required File file, // the file we have to send to other user via storing to firestore
+    required String recieverId,
+    // need recieverId for save to contact subcollection and message subcollection. we can create recieverModel using this id
+    required UserModel senderModel, // need for _saveDataToContactSubcollection and messageCollection
+    required ProviderRef ref, // interact with commonStorageProvider to get uploaded file url
+    required MessageEnum messageType, // the type of file it is based on enum values
+  }) async {
+    try {
+      var timeSent = DateTime.now(); // get the time when message is sent
+      var messageId = const Uuid().v1(); // generate random message id based on time
+      // generate recieverModel here form firestore using recieverId
+      var recieverUserMap = await firestore.collection('users').doc(recieverId).get(); // get map of reciever
+      var recieverModel = UserModel.fromMap(recieverUserMap.data()!); // can be null
+    } catch (e) {
+      showSnackBar(context: context, message: e.toString());
+    }
+  }
 }
 
 // Since there can be multiple users of same sender, we need to get the recieverUserId to send the message

@@ -26,7 +26,7 @@ final userDataProvider = FutureProvider((ref) {
   // here we wnt to return  authController user data and we cant use normal provider as getUserData() returns Future
   // so we use FutureProvider. We first watch() the authControllerProvider and then we get the user data from authController
   final userDataController = ref.watch(authControllerProvider);
-  return userDataController.getUserData();
+  return userDataController.getUserData(); // generates current/sender user data from FirebaseAuth instance
   // we use this controller to get user data for persistence
 
   // Benefit of usign FutureProvider(of riverpod) is that it identifies the getUserData() method returns a future
