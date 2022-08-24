@@ -5,6 +5,7 @@ import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 
 import 'package:whatsapp_ui/features/chat/repo/chat_repo.dart';
 import 'package:whatsapp_ui/models/chat_contact_model.dart';
+import 'package:whatsapp_ui/models/message_model.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
 
 final chatControllerProvider = Provider((ref) {
@@ -22,8 +23,13 @@ class ChatController {
   });
 
   /// controller method to get contacts of current user displayed on contact_screen
-  Stream<List<ChatContactModel>> getChatContacts() {
+  Stream<List<ChatContactModel>> chatContacts() {
     return chatRepository.getChatContacts();
+  }
+
+  /// controller method to get reciever contactId to get the messages between current user and reciever
+  Stream<List<MessageModel>> chatStream(String recieverContactId) {
+    return chatRepository.getChatStream(recieverContactId);
   }
 
   /// controller method to send text message to the reciever via chatRepository

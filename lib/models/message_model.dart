@@ -43,3 +43,5 @@ class MessageModel {
     );
   }
 }
+
+// forgot to add enum type to firebase 

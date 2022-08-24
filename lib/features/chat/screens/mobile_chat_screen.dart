@@ -29,7 +29,7 @@ class MobileChatScreen extends ConsumerWidget {
           // get stream of user model using uid
           // pass AsyncSnapshot<UserModel> othewise it will consider values as dynamic
           builder: (context, snapshot) {
-            debugPrint('the data is ${snapshot.data?.toMap().toString()}');
+            // debugPrint('the data is ${snapshot.data?.toMap().toString()}');
             // if connection is made, show the name of the user
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Loader();
@@ -66,8 +66,10 @@ class MobileChatScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          const Expanded(
-            child: ChatList(),
+          Expanded(
+            child: ChatList(
+              recieverContactId: uid,
+            ),
           ),
           const SizedBox(
             height: 1,

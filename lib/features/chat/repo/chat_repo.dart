@@ -45,6 +45,30 @@ class ChatRepository {
     });
   }
 
+  // the _saveDataToContactSubcollection() was similar to getChatContacts(), similarly, getUserMessages() will be
+  // similar to _saveMessageToMessageSubcollection for getting messages for each user
+
+  /// return stream of current user messages from firestore based on recieverId of the contact
+  Stream<List<MessageModel>> getChatStream(String recieverId) {
+    return firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .collection('chats') // go to chats of current user and use doc next as we dont want stream of contacts
+        .doc(recieverId) // like above and then choose the reciever id
+        .collection('messages') // check the messages of that reciever
+        // .orderBy('timeSent') // sort by time where 'timeSent' is property
+        .snapshots() // and send their snapshots converting them to message model
+        .map((event) {
+      List<MessageModel> userMessages = [];
+      for (var document in event.docs) {
+        // debugPrint(event.docs.toString());
+        userMessages.add(MessageModel.fromMap(document.data())); // document.data() is a map of the message
+        debugPrint(userMessages.toString());
+      }
+      return userMessages;
+    });
+  }
+
   /// private method accesible from sendTextMessage() to display new messages on top of screen for both sender and receiver
   void _saveDataToContactSubcollection(
       UserModel sender, UserModel reciever, String messageText, DateTime timeSent) async {

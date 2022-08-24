@@ -16,7 +16,8 @@ class ContactsList extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
       child: StreamBuilder<List<ChatContactModel>>(
-          stream: ref.watch(chatControllerProvider).getChatContacts(), // watch the chat provider and then method()
+          // read  is better for looking as it looks once and not keeps listening
+          stream: ref.read(chatControllerProvider).chatContacts(), // watch the chat provider and then method()
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Loader();
