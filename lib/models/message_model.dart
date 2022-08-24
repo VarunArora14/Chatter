@@ -38,10 +38,10 @@ class MessageModel {
       messageText: map['messageText'] ?? '',
       timeSent: DateTime.fromMillisecondsSinceEpoch(map['timeSent']),
       isSeen: map['isSeen'] ?? false,
-      messageType: (map['type'] as String).toEnum(), // stored as string, called when get data from firebase
+      messageType: (map['messageType'] as String).toEnum(), // stored as string, called when get data from firebase
       messageId: map['messageId'] ?? '',
     );
   }
 }
 
-// forgot to add enum type to firebase 
+// forgot to add enum type to firebase, also use map['messageType'] and not map['type'] based on model

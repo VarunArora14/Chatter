@@ -56,7 +56,7 @@ class ChatRepository {
         .collection('chats') // go to chats of current user and use doc next as we dont want stream of contacts
         .doc(recieverId) // like above and then choose the reciever id
         .collection('messages') // check the messages of that reciever
-        // .orderBy('timeSent') // sort by time where 'timeSent' is property
+        .orderBy('timeSent') // sort by time where 'timeSent' is property
         .snapshots() // and send their snapshots converting them to message model
         .map((event) {
       List<MessageModel> userMessages = [];
