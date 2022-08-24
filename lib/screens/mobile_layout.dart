@@ -1,10 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/constants/colors.dart';
+import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/features/select_contacts/screens/select_contact_screen.dart';
 import 'package:whatsapp_ui/features/chat/widgets/contacts_list.dart';
 
-class MobileLayout extends StatelessWidget {
+// ConsumerStatefulWidget have ref property in them without specifying in build() method
+class MobileLayout extends ConsumerStatefulWidget {
   const MobileLayout({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<MobileLayout> createState() => _MobileLayoutState();
+}
+
+// using WidgetsBindingObserver as a mixin
+class _MobileLayoutState extends ConsumerState<MobileLayout> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // make the WidgetsBinding.instance listen to the widget
+    WidgetsBinding.instance.addObserver(this); // add this to listen to the widget, hover 'this' to see widget
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // easily allows us to know where our app state is, click above to know more about the 4 states
+    // it keeps looking for change in AppLifeCycleState
+    // this method will only be called if there is change in the app state
+    super.didChangeAppLifecycleState(state);
+    // add switch case for handling states to show whether user offline or online
+    if (state == AppLifecycleState.resumed) {
+      ref.read(authControllerProvider).setUserState(true); // mark the user as online when resumed
+    } else {
+      ref.read(authControllerProvider).setUserState(false); // for inactive, paused and detached cases
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

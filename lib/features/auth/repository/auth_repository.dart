@@ -127,6 +127,8 @@ class AuthRepository {
 
   /// method to return stream of mapped User model of snapshot of a user based on their uid for async operations
   Stream<UserModel> userDataById(String userId) {
+    // since stream returns stream whose snapshots are of type AsyncSnapshot, we dont have to specify the function as async or do await
+    // it does it all automatially based on any change in snapshot
     // here we use snapshots as it return Stream of snapshots which is useful for getting online/offline status of user otherwise we have to send request to firebase everytime
     return firestore.collection('users').doc(userId).snapshots().map((event) => UserModel.fromMap(event.data()!));
     // from this snapshot, map the data passing even which is document<map<String,dynamic>> to UserModel class
@@ -135,6 +137,14 @@ class AuthRepository {
 
   // In case of Future<T> we have to send constant requests to get dome data whereas here we can use Stream<T> that asynchronously looks for changes
   // and returns a stream of data
+
+  /// method ooto change the user's online status in firestore database
+  void setUserState(bool isOnline) async {
+    // change the value of isOnline field in firestore database and since access database so async
+    await firestore.collection('users').doc(auth.currentUser!.uid).update({
+      'isOnline': isOnline, // using name of field of map, assign the correct value to it
+    });
+  }
 }
 
 // this this info in firebase docs

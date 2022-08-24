@@ -63,7 +63,7 @@ class ChatRepository {
       for (var document in event.docs) {
         // debugPrint(event.docs.toString());
         userMessages.add(MessageModel.fromMap(document.data())); // document.data() is a map of the message
-        debugPrint(userMessages.toString());
+        // debugPrint(userMessages.toString());
       }
       return userMessages;
     });

@@ -75,6 +75,11 @@ class AuthController {
   Stream<UserModel> userDataById(String userId) {
     return authRepository.userDataById(userId);
   }
+
+  /// controller method to change user's online/offline status
+  void setUserState(bool isOnline) {
+    authRepository.setUserState(isOnline); // no return as void function
+  }
 }
 // this controller will pass to the LoginScreen so we have to make sure it's instance available to the LoginScreen
 // we have to make sure this authController is used on LoginScreen when user clicks on sign in with phone button
