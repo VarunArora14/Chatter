@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/utils/utils.dart';
 
 import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
 
@@ -19,6 +23,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   final _textController = TextEditingController();
   bool showSendButton = false;
 
+  /// send text message to the reciever and store to firebase and clear the text field
   void sendTextMessage() async {
     // async as time to read, create instances and then the function
     // check if message can be sent or not
@@ -28,6 +33,21 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
       setState(() {
         _textController.clear(); // clear the textfield after sending message
       });
+    }
+  }
+
+  /// generic method for calling sendFileMessage() to send any file from sender to user based on messageType
+  void chooseFileMessage(
+    File file,
+    MessageEnum messageType,
+  ) async {
+    ref.read(chatControllerProvider).sendFileMessage(file, context, widget.recieverId, messageType);
+  }
+
+  void selectImage() async {
+    File? imageFile = await pickImageFromGallery(context); // context for snackbar
+    if (imageFile != null) {
+      chooseFileMessage(imageFile, MessageEnum.image);
     }
   }
 
@@ -99,9 +119,11 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.symmetric(horizontal: 0),
                       // padding: EdgeInsets.only(bottom: 10),
-                      icon: Icon(
-                        Icons.camera_alt_rounded,
-                        color: Colors.grey[600],
+                      icon: GestureDetector(
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                     IconButton(

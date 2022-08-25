@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/repo/common_firebase_storage_repo.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/models/chat_contact_model.dart';
 import 'package:whatsapp_ui/models/message_model.dart';
@@ -191,6 +192,7 @@ class ChatRepository {
   // the above function cannot be tested bcos we use buildcontext here and then display errors, If we used
   // Future<String> and if string was returned if success or not then we can test this function
 
+  /// method to send file to firestore storage and then send it to other user having logic to store in both sender and reciever, update the last message and time sent in both sender and reciever
   void sendFileMessage({
     required BuildContext context,
     required File file, // the file we have to send to other user via storing to firestore
@@ -203,9 +205,46 @@ class ChatRepository {
     try {
       var timeSent = DateTime.now(); // get the time when message is sent
       var messageId = const Uuid().v1(); // generate random message id based on time
+      // we store messages of call types together in chat folder with each type and the type has sender folder, then reciever folder and then message id file
+      // chat -> messageType -> senderId -> reciever id -> messageId(the file name randomly chosen) -> store message
+      // Note - this folder is inside firebase storage and not the database
+      String fileUrl = await ref
+          .read(commonFireBaseStorageRepoProvider)
+          .storeFileToFirebase('chat/${messageType.type}/${senderModel.uid}/$recieverId/$messageId', file);
       // generate recieverModel here form firestore using recieverId
       var recieverUserMap = await firestore.collection('users').doc(recieverId).get(); // get map of reciever
       var recieverModel = UserModel.fromMap(recieverUserMap.data()!); // can be null
+
+      String contactMsg; // logic for showing contactDataScreen when a file is last msg
+      switch (messageType) {
+        case MessageEnum.image:
+          contactMsg = '📷 Photo';
+          break;
+        case MessageEnum.video:
+          contactMsg = '🎥 Video';
+          break;
+        case MessageEnum.audio:
+          contactMsg = '🎧 Audio';
+          break;
+        case MessageEnum.gif:
+          contactMsg = 'GIF';
+          break;
+        default:
+          contactMsg = 'Default file'; // our mistake but we should not reach here
+      }
+
+      // update contact subcollection as it shows the last message on top
+      _saveDataToContactSubcollection(senderModel, recieverModel, contactMsg, timeSent);
+
+      // update message subcollection by adding the fileUrl
+      _saveMessageToMessageSubcollection(
+          messageText: fileUrl, // in the msg url has to be shown in the chat screen
+          recieverId: recieverId,
+          senderName: senderModel.name,
+          recieverName: recieverModel.name,
+          timeSent: timeSent, // the time when this file is sent
+          messageId: messageId, // random messageId for storing in firestore in messageModel
+          messageType: messageType); // based on enum values, we store the string(see MessageModel)
     } catch (e) {
       showSnackBar(context: context, message: e.toString());
     }
