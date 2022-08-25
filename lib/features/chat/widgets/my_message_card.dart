@@ -11,6 +11,31 @@ class MyMessageCard extends StatelessWidget {
   const MyMessageCard({Key? key, required this.message, required this.date, required this.messageType})
       : super(key: key);
 
+  EdgeInsets setPadding(String message, MessageEnum messageType) {
+    if (messageType == MessageEnum.text && message.length < 4) {
+      return const EdgeInsets.only(
+        left: 35,
+        right: 30,
+        top: 5,
+        bottom: 20,
+      );
+    } else if (messageType == MessageEnum.text && message.length >= 4) {
+      return const EdgeInsets.only(
+        left: 10,
+        right: 30,
+        top: 5,
+        bottom: 20,
+      );
+    } else {
+      return const EdgeInsets.only(
+        left: 5,
+        right: 5,
+        top: 5,
+        bottom: 5,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -27,19 +52,7 @@ class MyMessageCard extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: messageType == MessageEnum.text
-                    ? const EdgeInsets.only(
-                        left: 10,
-                        right: 30,
-                        top: 5,
-                        bottom: 20,
-                      )
-                    : const EdgeInsets.only(
-                        left: 5,
-                        right: 5,
-                        top: 5,
-                        bottom: 25,
-                      ),
+                padding: setPadding(message, messageType),
                 child: DisplayMessageCard(
                   messageData: message, // pass the message whether text or url of uploaded file
                   messageType: messageType, // and type based on which we decide how to show the file
