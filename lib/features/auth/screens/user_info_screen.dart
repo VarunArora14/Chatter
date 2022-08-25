@@ -25,7 +25,10 @@ class _UserInfoScreenState extends ConsumerState<UserInfoScreen> {
   }
 
   void selectImage() async {
-    image = await pickImageFromGallery(context);
+    File? chosenImage = await pickImageFromGallery(context);
+    if (chosenImage != null) {
+      image = chosenImage;
+    }
     setState(() {});
   }
 

@@ -2,6 +2,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/features/chat/widgets/video_player_item.dart';
 // use cached_network_image package to cache the images and display rather than making calls everytime
 // it is much better for storing images/files which have to be loaded again and again
 
@@ -15,14 +16,29 @@ class DisplayMessageCard extends StatelessWidget {
     required this.messageType,
   }) : super(key: key);
 
+  Widget currentMessage(String messageData, MessageEnum messageType) {
+    switch (messageType) {
+      case MessageEnum.text:
+        return Text(
+          messageData,
+          style: const TextStyle(fontSize: 16),
+        );
+      case MessageEnum.image:
+        return Padding(
+            padding: const EdgeInsets.only(bottom: 20), child: CachedNetworkImage(imageUrl: messageData));
+      case MessageEnum.video:
+        return VideoPlayerWidget(videoUrl: messageData); // here messageData will be url sent by firebase
+      default:
+        return Text(
+          messageData,
+          style: const TextStyle(fontSize: 16),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return messageType == MessageEnum.text
-        ? Text(
-            messageData,
-            style: const TextStyle(fontSize: 16),
-          )
-        : CachedNetworkImage(imageUrl: messageData);
+    return currentMessage(messageData, messageType);
     // assuming there can be only 2 types of messages - text and image right now
   }
 }

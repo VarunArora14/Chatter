@@ -44,10 +44,19 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     ref.read(chatControllerProvider).sendFileMessage(file, context, widget.recieverId, messageType);
   }
 
+  /// method to select image form gallery when camera icon is clicked
   void selectImage() async {
     File? imageFile = await pickImageFromGallery(context); // context for snackbar
     if (imageFile != null) {
       chooseFileMessage(imageFile, MessageEnum.image);
+    }
+  }
+
+  /// method to select video from gallery when file icon is clicked
+  void selectVideo() async {
+    File? videoFile = await pickVideoFromGallery(context); // context for snackbar
+    if (videoFile != null) {
+      chooseFileMessage(videoFile, MessageEnum.video);
     }
   }
 
@@ -75,6 +84,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
             },
             style: const TextStyle(color: Colors.black),
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
               hintText: 'Message here',
               hintStyle: const TextStyle(color: Colors.black54),
               filled: true,
@@ -97,7 +107,9 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                       ),
                       IconButton(
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                        constraints: const BoxConstraints(),
+                        constraints: const BoxConstraints(
+                          minWidth: 0,
+                        ),
                         onPressed: () {},
                         icon: Icon(
                           Icons.gif_rounded,
@@ -110,13 +122,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                 ),
               ),
               suffixIcon: SizedBox(
-                width: 100,
+                width: 80,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
                       onPressed: selectImage, // choose image from gallery
-                      constraints: const BoxConstraints(),
+                      constraints: const BoxConstraints(minWidth: 0),
                       padding: const EdgeInsets.symmetric(horizontal: 0),
                       // padding: EdgeInsets.only(bottom: 10),
                       icon: Icon(
@@ -125,13 +137,16 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      onPressed: selectVideo, // choose video from gallery
+                      padding: const EdgeInsets.only(left: 5),
                       constraints: const BoxConstraints(maxWidth: 38, minWidth: 38),
                       icon: Icon(
                         Icons.attach_file_rounded,
                         color: Colors.grey[600],
                       ),
+                    ),
+                    const SizedBox(
+                      width: 10,
                     ),
                   ],
                 ),
@@ -143,7 +158,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                   style: BorderStyle.none,
                 ),
               ),
-              contentPadding: const EdgeInsets.all(10),
+              // contentPadding: const EdgeInsets.all(10),
             ),
           ),
         ),
