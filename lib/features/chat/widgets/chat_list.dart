@@ -6,13 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:whatsapp_ui/common/widgets/error_page.dart';
 import 'package:whatsapp_ui/common/widgets/loader.dart';
-
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/info.dart';
+import 'package:whatsapp_ui/features/chat/widgets/sender_message_card.dart';
 import 'package:whatsapp_ui/models/message_model.dart';
-import 'package:whatsapp_ui/widgets/my_message_card.dart';
-import 'package:whatsapp_ui/widgets/sender_message_card.dart';
+
+import 'my_message_card.dart';
 
 class ChatList extends ConsumerStatefulWidget {
   final String recieverContactId;
@@ -64,11 +62,13 @@ class _ChatListState extends ConsumerState<ChatList> {
                   return MyMessageCard(
                     message: messageData.messageText, // array[] cannot be bull
                     date: timeSent,
+                    messageType: messageData.messageType,
                   );
                 }
                 return SenderMessageCard(
                   message: messageData.messageText,
                   date: timeSent,
+                  messageType: messageData.messageType,
                 );
               },
             );

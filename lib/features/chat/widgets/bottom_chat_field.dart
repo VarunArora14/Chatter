@@ -115,15 +115,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: selectImage, // choose image from gallery
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.symmetric(horizontal: 0),
                       // padding: EdgeInsets.only(bottom: 10),
-                      icon: GestureDetector(
-                        child: Icon(
-                          Icons.camera_alt_rounded,
-                          color: Colors.grey[600],
-                        ),
+                      icon: Icon(
+                        Icons.camera_alt_rounded,
+                        color: Colors.grey[600],
                       ),
                     ),
                     IconButton(

@@ -20,6 +20,8 @@ enum MessageEnum {
 extension MessageEnumExtension on String {
   MessageEnum toEnum() {
     switch (this) {
+      case 'image':
+        return MessageEnum.image;
       case 'audio':
         return MessageEnum.audio;
       case 'video':
