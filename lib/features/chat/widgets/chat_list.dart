@@ -45,7 +45,8 @@ class _ChatListState extends ConsumerState<ChatList> {
 
           // if stream rebuilds with new message then scroll down
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            scrollController.jumpTo(scrollController.position.maxScrollExtent);
+            scrollController.animateTo(scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
             // scroll jump to maximum where you can scroll down to(the last message), add this to scrollable
             // item such as listview builder
           });

@@ -63,4 +63,17 @@ class ChatController {
         ref: ref, // interact with other providers, metioned in ChatController contructor
         messageType: messageType));
   }
+
+  /// controller method to send a gif to the reciever via chatRepository
+  void sendGifMessage(BuildContext context, String gifUrl, String recieverId) {
+    int gifUrlEndIndex = gifUrl.lastIndexOf('-') + 1; // remove '-' from the end of the url
+    String gifUrlEnd = gifUrl.substring(gifUrlEndIndex);
+    String newGifUrl = 'https://i.giphy.com/media/$gifUrlEnd/200.gif'; // combine the two parts of url
+
+    ref.read(userDataProvider).whenData((value) => chatRepository.sendGifMessage(
+        context: context, gifUrl: newGifUrl, recieverId: recieverId, senderUser: value!));
+  }
+  // convert the given gif  url to one which just shows gif
+  // https://giphy.com/gifs/ohio-womens-equality-day-for-our-future-GreNzH1VnIWFPYDhpy -> gifUrl is this
+  // https://i.giphy.com/media/GreNzH1VnIWFPYDhpy/200.gif -> this is what we want to show in the message
 }

@@ -160,8 +160,7 @@ class ChatRepository {
       required String text,
       required String recieverId,
       required UserModel senderUser}) async {
-    // we want more of sender than just id
-    // The chat
+    // we want more of sender than just id and name, so we need to get more info from senderUser
 
     try {
       var timeSent = DateTime.now(); // get the time when message is sent
@@ -247,6 +246,39 @@ class ChatRepository {
           messageType: messageType); // based on enum values, we store the string(see MessageModel)
     } catch (e) {
       showSnackBar(context: context, message: e.toString());
+    }
+  }
+
+  /// send GIF url to firestore storage and update msg to contact, message subcollection
+  void sendGifMessage(
+      {required BuildContext context,
+      required String gifUrl,
+      required String recieverId,
+      required UserModel senderUser}) async {
+    try {
+      var timeSent = DateTime.now(); // get the time when message is sent
+      UserModel receiverUserData; // get the receiver user data using recieverid
+
+      var userDataMap = await firestore.collection('users').doc(recieverId).get();
+      // get map of reciever
+      receiverUserData = UserModel.fromMap(userDataMap.data()!); // can be null
+
+      var messageId = const Uuid().v1(); // generate random message id based on time
+      _saveDataToContactSubcollection(senderUser, receiverUserData, 'GIF', timeSent);
+      // show on contact screen 'GIF' as the last message
+
+      // after data is saved to contact subcollection, we need to store it to message subcollection
+
+      _saveMessageToMessageSubcollection(
+          messageText: gifUrl, // add this url which we will later render as real gif in chat screen
+          recieverId: recieverId,
+          senderName: senderUser.name,
+          recieverName: receiverUserData.name,
+          timeSent: timeSent,
+          messageId: messageId,
+          messageType: MessageEnum.gif); // dont forget to add gif massageType here
+    } catch (e) {
+      showSnackBar(context: context, message: 'Send text message failed: ${e.toString()}');
     }
   }
 }
