@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
 
 class MessageModel {
@@ -8,6 +10,9 @@ class MessageModel {
   final bool isSeen;
   final MessageEnum messageType;
   final String messageId;
+  final String replyMessageText; // text which we are replying to
+  final String repliedUser; // user to whom we are replying
+  final MessageEnum replyMessageType; // type of message we are replying to
 
   MessageModel({
     required this.senderId,
@@ -17,6 +22,9 @@ class MessageModel {
     required this.isSeen,
     required this.messageType,
     required this.messageId,
+    required this.replyMessageText,
+    required this.repliedUser,
+    required this.replyMessageType,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,8 +34,11 @@ class MessageModel {
       'messageText': messageText,
       'timeSent': timeSent.millisecondsSinceEpoch,
       'isSeen': isSeen,
-      'messageType': messageType.type, // check messages_enum where we have this type for string value of enum
+      'messageType': messageType.type, // store the string and retrieve same later making it enum
       'messageId': messageId,
+      'replyMessageText': replyMessageText,
+      'repliedUser': repliedUser,
+      'replyMessageType': replyMessageType.type, // same as above num change and below conversion
     };
   }
 
@@ -38,8 +49,12 @@ class MessageModel {
       messageText: map['messageText'] ?? '',
       timeSent: DateTime.fromMillisecondsSinceEpoch(map['timeSent']),
       isSeen: map['isSeen'] ?? false,
-      messageType: (map['messageType'] as String).toEnum(), // stored as string, called when get data from firebase
+      messageType: (map['messageType'] as String).toEnum(), // convert to enum
       messageId: map['messageId'] ?? '',
+      replyMessageText: map['replyMessageText'] ?? '',
+      repliedUser: map['repliedUser'] ?? '',
+      replyMessageType: (map['replyMessageType'] as String).toEnum(),
+      // take the string and use toEnum() to convert to enum
     );
   }
 }

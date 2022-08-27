@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/features/chat/repo/chat_repo.dart';
 import 'package:whatsapp_ui/models/chat_contact_model.dart';
@@ -35,8 +36,16 @@ class ChatController {
 
   /// controller method to send text message to the reciever via chatRepository
   void sendTextMessage(BuildContext context, String messageText, String recieverId) {
-    ref.read(userDataProvider).whenData((value) => chatRepository.sendTextMessage(
-        context: context, text: messageText, recieverId: recieverId, senderUser: value!));
+    // Here check if current message is a reply or not, ref from constructor to interact
+    final messagReply = ref.read(messageReplyProvider); // ProviderRef used here to interact with other providers
+    ref.read(userDataProvider).whenData(
+          (value) => chatRepository.sendTextMessage(
+              context: context,
+              text: messageText,
+              recieverId: recieverId,
+              senderUser: value!,
+              messageReply: messagReply),
+        );
 // we cannot get senderUser model which is Future from a screen so we use userDataProvider for that
 // read from userDataProvider which watches authControllerProvider and returns user data
 // the reason we use userDataProvider is because it is a FutureProvider and we want to return a Future
@@ -55,23 +64,36 @@ class ChatController {
     MessageEnum messageType,
   ) {
     // userDataProvider performs getUserData() which returnns a Future object and userDataProvider is a FutureProvider
-    ref.read(userDataProvider).whenData((value) => chatRepository.sendFileMessage(
-        context: context,
-        file: file,
-        recieverId: recieverId,
-        senderModel: value!, // it contains UserModel object invoked by getUserData() of Future provider above
-        ref: ref, // interact with other providers, metioned in ChatController contructor
-        messageType: messageType));
+    // Here check if current message is a reply or not, ref from constructor to interact
+    final messagReply = ref.read(messageReplyProvider);
+    ref.read(userDataProvider).whenData(
+          (value) => chatRepository.sendFileMessage(
+              context: context,
+              file: file,
+              recieverId: recieverId,
+              senderModel:
+                  value!, // it contains UserModel object invoked by getUserData() of Future provider above
+              ref: ref, // interact with other providers, metioned in ChatController contructor
+              messageType: messageType,
+              messageReply: messagReply),
+        );
   }
 
   /// controller method to send a gif to the reciever via chatRepository
   void sendGifMessage(BuildContext context, String gifUrl, String recieverId) {
+    final messageReply = ref.read(messageReplyProvider); // read to see if current message is a reply or not
     int gifUrlEndIndex = gifUrl.lastIndexOf('-') + 1; // remove '-' from the end of the url
     String gifUrlEnd = gifUrl.substring(gifUrlEndIndex);
     String newGifUrl = 'https://i.giphy.com/media/$gifUrlEnd/200.gif'; // combine the two parts of url
 
-    ref.read(userDataProvider).whenData((value) => chatRepository.sendGifMessage(
-        context: context, gifUrl: newGifUrl, recieverId: recieverId, senderUser: value!));
+    ref.read(userDataProvider).whenData(
+          (value) => chatRepository.sendGifMessage(
+              context: context,
+              gifUrl: newGifUrl,
+              recieverId: recieverId,
+              senderUser: value!,
+              messageReply: messageReply),
+        );
   }
   // convert the given gif  url to one which just shows gif
   // https://giphy.com/gifs/ohio-womens-equality-day-for-our-future-GreNzH1VnIWFPYDhpy -> gifUrl is this

@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/common/widgets/error_page.dart';
 import 'package:whatsapp_ui/common/widgets/loader.dart';
 import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
+import 'package:whatsapp_ui/features/chat/widgets/message_reply_view.dart';
 import 'package:whatsapp_ui/features/chat/widgets/sender_message_card.dart';
 import 'package:whatsapp_ui/models/message_model.dart';
 
@@ -26,6 +29,14 @@ class ChatList extends ConsumerStatefulWidget {
 class _ChatListState extends ConsumerState<ChatList> {
   // create ScrollController here not above
   final ScrollController scrollController = ScrollController();
+
+  /// changes state of message reply provider by returning a new instance of MessageReply used for reply view
+  void onMessageSwipe(String message, bool isMe, MessageEnum messageType) {
+    ref.read(messageReplyProvider.notifier).update((state) => MessageReply(message, isMe, messageType));
+    // on swipe, change the state of messageReplyProvider an return MessageReply class instance
+    // when we swipe we change the state of messageReplyProvider and it will be updated
+    // https://riverpod.dev/docs/providers/state_provider/
+  }
 
   @override
   void dispose() {
@@ -64,12 +75,29 @@ class _ChatListState extends ConsumerState<ChatList> {
                     message: messageData.messageText, // array[] cannot be bull
                     date: timeSent,
                     messageType: messageData.messageType,
+                    replyText: messageData.replyMessageText, // this will be stored in MessageModel class
+                    replyUser: messageData.repliedUser,
+                    replyMessageType: messageData.replyMessageType,
+                    onLeftSwipe: () => onMessageSwipe(
+                      messageData.messageText,
+                      true,
+                      messageData.messageType,
+                    ),
+                    // since senderId same as auth.uid then we are replying to our message, pass the data to onMessageSwipe
                   );
                 }
                 return SenderMessageCard(
                   message: messageData.messageText,
                   date: timeSent,
                   messageType: messageData.messageType,
+                  replyText: messageData.replyMessageText, // this will be stored in MessageModel class
+                  replyUser: messageData.repliedUser,
+                  replyMessageType: messageData.replyMessageType,
+                  onRightSwipe: () => onMessageSwipe(
+                    messageData.messageText,
+                    false, // reply to other dude
+                    messageData.messageType,
+                  ),
                 );
               },
             );

@@ -5,9 +5,11 @@ import 'package:enough_giphy_flutter/enough_giphy_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 
 import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
+import 'package:whatsapp_ui/features/chat/widgets/message_reply_view.dart';
 
 // Convert to stateful for icon changing and state changes of just this BottomField and not whole screen
 class BottomChatField extends ConsumerStatefulWidget {
@@ -110,8 +112,14 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
   @override
   Widget build(BuildContext context) {
+    final messageReply = ref.watch(messageReplyProvider);
+    final isMessageReply = (messageReply != null); // check if messageReply null or not and based on that show it
     return Column(
       children: [
+        // if messageReply is not null then show the messageReplyView
+        isMessageReply
+            ? const MessageReplyView()
+            : const SizedBox(), // if messageReply is not null then show messageReplyView
         Row(
           children: [
             Expanded(

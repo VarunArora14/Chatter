@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whatsapp_ui/common/enums/message_enums.dart';
+import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/common/repo/common_firebase_storage_repo.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/models/chat_contact_model.dart';
@@ -120,16 +121,27 @@ class ChatRepository {
       required String recieverName,
       required DateTime timeSent,
       required String messageId,
+      required MessageReply? messageReply, // if current message is a reply to another message,null if not a reply
+      // required MessageEnum replyMessageType,
       required MessageEnum messageType}) async {
     // for each message we need to save to message subcollection based on the message model we created
     final message = MessageModel(
-        senderId: auth.currentUser!.uid, // current user and senderUser in below func will point to same senderid
-        recieverId: recieverId,
-        messageText: messageText,
-        timeSent: timeSent,
-        isSeen: false, // change value based  on logic
-        messageType: messageType,
-        messageId: messageId);
+      senderId: auth.currentUser!.uid, // current user and senderUser in below func will point to same senderid
+      recieverId: recieverId,
+      messageText: messageText,
+      timeSent: timeSent,
+      isSeen: false, // change value based  on logic
+      messageType: messageType,
+      messageId: messageId,
+      replyMessageText: (messageReply == null) ? '' : messageReply.messageData, // if null then no text else text
+      repliedUser: (messageReply == null)
+          ? ''
+          : ((messageReply.isMe) ? senderName : recieverName), // if null then no text else text
+// null check so no exception if no messageReply is null
+      replyMessageType: (messageReply == null)
+          ? MessageEnum.text
+          : messageReply.messageType, // type taken from constructor of function
+    );
 
     // do the below 2 times as we need to show stuff for both users
     // users -> senderUserId -> messages -> receiverUserId -> messages collection -> messageId -> store message
@@ -155,11 +167,14 @@ class ChatRepository {
   }
 
   /// send text message of current user to the other user while storing in firestore
-  void sendTextMessage(
-      {required BuildContext context,
-      required String text,
-      required String recieverId,
-      required UserModel senderUser}) async {
+  void sendTextMessage({
+    required BuildContext context,
+    required String text,
+    required String recieverId,
+    required UserModel senderUser,
+    required MessageReply? messageReply, // take message reply if any so save message collection can work
+    // required MessageEnum replyMessageType,
+  }) async {
     // we want more of sender than just id and name, so we need to get more info from senderUser
 
     try {
@@ -182,6 +197,7 @@ class ChatRepository {
           recieverName: receiverUserData.name,
           timeSent: timeSent,
           messageId: messageId,
+          messageReply: messageReply,
           messageType: MessageEnum.text);
     } catch (e) {
       showSnackBar(context: context, message: 'Send text message failed: ${e.toString()}');
@@ -200,6 +216,8 @@ class ChatRepository {
     required UserModel senderModel, // need for _saveDataToContactSubcollection and messageCollection
     required ProviderRef ref, // interact with commonStorageProvider to get uploaded file url
     required MessageEnum messageType, // the type of file it is based on enum values
+    required MessageReply? messageReply,
+    // required MessageEnum replyMessageType,
   }) async {
     try {
       var timeSent = DateTime.now(); // get the time when message is sent
@@ -237,24 +255,29 @@ class ChatRepository {
 
       // update message subcollection by adding the fileUrl
       _saveMessageToMessageSubcollection(
-          messageText: fileUrl, // in the msg url has to be shown in the chat screen
-          recieverId: recieverId,
-          senderName: senderModel.name,
-          recieverName: recieverModel.name,
-          timeSent: timeSent, // the time when this file is sent
-          messageId: messageId, // random messageId for storing in firestore in messageModel
-          messageType: messageType); // based on enum values, we store the string(see MessageModel)
+        messageText: fileUrl, // in the msg url has to be shown in the chat screen
+        recieverId: recieverId,
+        senderName: senderModel.name,
+        recieverName: recieverModel.name,
+        timeSent: timeSent, // the time when this file is sent
+        messageId: messageId, // random messageId for storing in firestore in messageModel
+        messageType: messageType,
+        messageReply: messageReply, // taken in constructor of function
+      ); // based on enum values, we store the string(see MessageModel)
     } catch (e) {
       showSnackBar(context: context, message: e.toString());
     }
   }
 
   /// send GIF url to firestore storage and update msg to contact, message subcollection
-  void sendGifMessage(
-      {required BuildContext context,
-      required String gifUrl,
-      required String recieverId,
-      required UserModel senderUser}) async {
+  void sendGifMessage({
+    required BuildContext context,
+    required String gifUrl,
+    required String recieverId,
+    required UserModel senderUser,
+    // required MessageEnum replyMessageType, // since this message can be replied, we need to know the type
+    required MessageReply? messageReply, // contains info of reply message if any
+  }) async {
     try {
       var timeSent = DateTime.now(); // get the time when message is sent
       UserModel receiverUserData; // get the receiver user data using recieverid
@@ -270,13 +293,15 @@ class ChatRepository {
       // after data is saved to contact subcollection, we need to store it to message subcollection
 
       _saveMessageToMessageSubcollection(
-          messageText: gifUrl, // add this url which we will later render as real gif in chat screen
-          recieverId: recieverId,
-          senderName: senderUser.name,
-          recieverName: receiverUserData.name,
-          timeSent: timeSent,
-          messageId: messageId,
-          messageType: MessageEnum.gif); // dont forget to add gif massageType here
+        messageText: gifUrl, // add this url which we will later render as real gif in chat screen
+        recieverId: recieverId,
+        senderName: senderUser.name,
+        recieverName: receiverUserData.name,
+        timeSent: timeSent,
+        messageId: messageId,
+        messageType: MessageEnum.gif,
+        messageReply: messageReply, // will decide the if reply to self or other
+      ); // dont forget to add gif massageType here
     } catch (e) {
       showSnackBar(context: context, message: 'Send text message failed: ${e.toString()}');
     }
