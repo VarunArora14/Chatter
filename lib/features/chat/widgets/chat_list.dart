@@ -79,8 +79,9 @@ class _ChatListState extends ConsumerState<ChatList> {
                     replyUser: messageData.repliedUser,
                     replyMessageType: messageData.replyMessageType,
                     onLeftSwipe: () => onMessageSwipe(
-                      messageData.messageText,
-                      true,
+                      // method on this message card which takes the text of
+                      messageData.messageText, // this message, it's type and isMe for the current message
+                      true, // to show this message as replied message to and then the current message
                       messageData.messageType,
                     ),
                     // since senderId same as auth.uid then we are replying to our message, pass the data to onMessageSwipe

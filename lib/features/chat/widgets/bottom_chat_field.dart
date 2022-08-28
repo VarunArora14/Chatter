@@ -64,6 +64,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     if (showSendButton == true) {
       // trim extra whitespaces after end
       ref.read(chatControllerProvider).sendTextMessage(context, _textController.text.trim(), widget.recieverId);
+      ref.read(messageReplyProvider.state).update((state) => null); // clear the reply view
       setState(() {
         _textController.clear(); // clear the textfield after sending message
       });
@@ -76,6 +77,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     MessageEnum messageType,
   ) async {
     ref.read(chatControllerProvider).sendFileMessage(file, context, widget.recieverId, messageType);
+    ref.read(messageReplyProvider.state).update((state) => null); // clear the reply view
   }
 
   /// select GIF and send GIF url and reciever id to controller method to send the GIF message from sender to reciever
