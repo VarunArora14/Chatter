@@ -98,4 +98,9 @@ class ChatController {
   // convert the given gif  url to one which just shows gif
   // https://giphy.com/gifs/ohio-womens-equality-day-for-our-future-GreNzH1VnIWFPYDhpy -> gifUrl is this
   // https://i.giphy.com/media/GreNzH1VnIWFPYDhpy/200.gif -> this is what we want to show in the message
+
+  /// controller method to mark message seen by the reciever via chatRepository sychronously
+  void setChatMessageSeen(BuildContext context, String recieverId, String messageId) {
+    chatRepository.setMessageSeen(context, recieverId, messageId);
+  }
 }

@@ -69,6 +69,12 @@ class _ChatListState extends ConsumerState<ChatList> {
               itemBuilder: (context, index) {
                 final messageData = snapshot.data![index]; // use this variable at places instead of snapshot
                 var timeSent = DateFormat.Hm().format(messageData.timeSent);
+// if message is not seen and reciever is US then we have to say the message is seen
+                if (!messageData.isSeen && messageData.recieverId == FirebaseAuth.instance.currentUser!.uid) {
+                  ref
+                      .read(chatControllerProvider)
+                      .setChatMessageSeen(context, widget.recieverContactId, messageData.messageId);
+                }
                 if (messageData.senderId == FirebaseAuth.instance.currentUser!.uid) {
                   // check if sender of user is FireBase current user then send MyMessageCard
                   return MyMessageCard(
@@ -84,6 +90,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                       true, // to show this message as replied message to and then the current message
                       messageData.messageType,
                     ),
+                    isSeen: messageData.isSeen, // based on this decide whether to show the blue tick or not
                     // since senderId same as auth.uid then we are replying to our message, pass the data to onMessageSwipe
                   );
                 }

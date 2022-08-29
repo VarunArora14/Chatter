@@ -306,6 +306,38 @@ class ChatRepository {
       showSnackBar(context: context, message: 'Send text message failed: ${e.toString()}');
     }
   }
+
+  /// mark the message seen based on their recieverId and messageId
+  void setMessageSeen(BuildContext context, String recieverId, String messageId) async {
+    try {
+      // use the message subcollection of both reciever and sender as we have to update messages of both so they stay in sync
+      await firestore
+          .collection('users') // common collection for all users
+          .doc(auth.currentUser!.uid) // in the document of current user or senderId(same thing)
+          .collection('chats') // access the chats collection
+          .doc(recieverId) // and access the recieverId for accessing chats with recieverId
+          .collection('messages') // this collection has the messages btw sender and reciever
+          .doc(messageId) // store message in this random generated messageId
+          .update({
+        'isSeen': true // update isSeen field to true for current message
+      });
+
+      // users -> recieverUserId -> messages/chats -> senderUserId  -> messages collection -> messageId -> store message
+
+      await firestore
+          .collection('users')
+          .doc(recieverId) // this time we store this data in reciever so they can see it on their screen
+          .collection('chats') // collection name for messages
+          .doc(auth.currentUser!.uid) // document for sender as being viewed by reciever
+          .collection('messages') // collection for messages inside chats for each user reciever chats to
+          .doc(messageId) // store message in this random generated messageId
+          .update({
+        'isSeen': true // update isSeen field to true for current message
+      });
+    } catch (e) {
+      showSnackBar(context: context, message: e.toString());
+    }
+  }
 }
 
 // Since there can be multiple users of same sender, we need to get the recieverUserId to send the message

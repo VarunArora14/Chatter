@@ -13,17 +13,19 @@ class MyMessageCard extends StatelessWidget {
   final String replyText; // the text which we are replying to be used for reply view
   final String replyUser; // user to whome we are replying
   final MessageEnum replyMessageType; // type of message we are replying to
+  final bool isSeen; // if the msg is seen or not in message card view
 
-  const MyMessageCard({
-    Key? key,
-    required this.message,
-    required this.date,
-    required this.messageType,
-    required this.onLeftSwipe,
-    required this.replyText,
-    required this.replyUser,
-    required this.replyMessageType,
-  }) : super(key: key);
+  const MyMessageCard(
+      {Key? key,
+      required this.message,
+      required this.date,
+      required this.messageType,
+      required this.onLeftSwipe,
+      required this.replyText,
+      required this.replyUser,
+      required this.replyMessageType,
+      required this.isSeen})
+      : super(key: key);
 
   EdgeInsets setPadding(String message, MessageEnum messageType) {
     if (messageType == MessageEnum.text && message.length < 4 && replyText.isNotEmpty) {
@@ -127,10 +129,10 @@ class MyMessageCard extends StatelessWidget {
                       const SizedBox(
                         width: 5,
                       ),
-                      const Icon(
-                        Icons.done_all,
+                      Icon(
+                        (isSeen == true) ? Icons.done_all : Icons.done,
                         size: 20,
-                        color: Colors.white60,
+                        color: (isSeen == true) ? Colors.blue : Colors.white60,
                       ),
                     ],
                   ),
