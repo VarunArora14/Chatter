@@ -70,6 +70,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                 final messageData = snapshot.data![index]; // use this variable at places instead of snapshot
                 var timeSent = DateFormat.Hm().format(messageData.timeSent);
 // if message is not seen and reciever is US then we have to say the message is seen
+// since this is defined inside this builder then we can see for each message if it is seen or not based on below condition
                 if (!messageData.isSeen && messageData.recieverId == FirebaseAuth.instance.currentUser!.uid) {
                   ref
                       .read(chatControllerProvider)

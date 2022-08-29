@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/constants/colors.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/features/select_contacts/screens/select_contact_screen.dart';
 import 'package:whatsapp_ui/features/chat/widgets/contacts_list.dart';
+import 'dart:io';
+
+import 'package:whatsapp_ui/features/status/screens/confirm_status.dart';
 
 // ConsumerStatefulWidget have ref property in them without specifying in build() method
 class MobileLayout extends ConsumerStatefulWidget {
@@ -14,10 +18,28 @@ class MobileLayout extends ConsumerStatefulWidget {
 }
 
 // using WidgetsBindingObserver as a mixin
-class _MobileLayoutState extends ConsumerState<MobileLayout> with WidgetsBindingObserver {
+class _MobileLayoutState extends ConsumerState<MobileLayout>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
+// above mixin for appLifecycleState and vsync for tabController(hover vsync)
+
+  late TabController tabController; // for managin which tab we are on
+  void floatingActionButtonPressed(int tabIndex) async {
+    // first tab floating button is to choose chat to talk to
+    if (tabIndex == 0) {
+      Navigator.pushNamed(context, SelectContactScreen.routeName);
+    } else if (tabIndex == 1) {
+      File? pickedImage = await pickImageFromGallery(context);
+      if (pickedImage != null) {
+        // post this as status by first sending it to confirmation screen
+        Navigator.pushNamed(context, ConfirmStatusScreen.routeName, arguments: pickedImage);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    tabController = TabController(length: 3, vsync: this);
     // make the WidgetsBinding.instance listen to the widget
     WidgetsBinding.instance.addObserver(this); // add this to listen to the widget, hover 'this' to see widget
   }
@@ -25,6 +47,7 @@ class _MobileLayoutState extends ConsumerState<MobileLayout> with WidgetsBinding
   @override
   void dispose() {
     super.dispose();
+    tabController.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -83,11 +106,13 @@ class _MobileLayoutState extends ConsumerState<MobileLayout> with WidgetsBinding
                   Tab(text: 'CALLS'),
                 ]),
           ),
-          body: const ContactsList(),
+          body: TabBarView(controller: tabController, children: const [
+            ContactsList(),
+            SelectContactScreen(),
+            Text('CALLS'),
+          ]),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.pushNamed(context, SelectContactScreen.routeName);
-            },
+            onPressed: () => floatingActionButtonPressed(tabController.index),
             backgroundColor: tabColor,
             child: const Icon(
               Icons.comment,
