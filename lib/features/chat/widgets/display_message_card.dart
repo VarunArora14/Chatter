@@ -25,7 +25,9 @@ class DisplayMessageCard extends StatelessWidget {
         );
       case MessageEnum.image:
         return Padding(
-            padding: const EdgeInsets.only(bottom: 20), child: CachedNetworkImage(imageUrl: messageData));
+            // network image as it has the imge here has firebase url as messageData which we try to cache and show
+            padding: const EdgeInsets.only(bottom: 20),
+            child: CachedNetworkImage(imageUrl: messageData));
       case MessageEnum.video:
         return VideoPlayerWidget(videoUrl: messageData); // here messageData will be url sent by firebase
       case MessageEnum.gif:

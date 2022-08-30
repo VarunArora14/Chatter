@@ -8,6 +8,7 @@ import 'package:whatsapp_ui/features/chat/widgets/contacts_list.dart';
 import 'dart:io';
 
 import 'package:whatsapp_ui/features/status/screens/confirm_status.dart';
+import 'package:whatsapp_ui/features/status/screens/status_contact_screen.dart';
 
 // ConsumerStatefulWidget have ref property in them without specifying in build() method
 class MobileLayout extends ConsumerStatefulWidget {
@@ -22,7 +23,8 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
     with WidgetsBindingObserver, TickerProviderStateMixin {
 // above mixin for appLifecycleState and vsync for tabController(hover vsync)
 
-  late TabController tabController; // for managin which tab we are on
+  late TabController tabController; // for managing and routing to tab we are on
+
   void floatingActionButtonPressed(int tabIndex) async {
     // first tab floating button is to choose chat to talk to
     if (tabIndex == 0) {
@@ -36,18 +38,27 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
     }
   }
 
+// to do setstate if any change in tab so it makes change to Icon of floating action button
+  void _handleTabIndex() {
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
+    tabController.addListener(_handleTabIndex);
+
     // make the WidgetsBinding.instance listen to the widget
     WidgetsBinding.instance.addObserver(this); // add this to listen to the widget, hover 'this' to see widget
   }
 
   @override
   void dispose() {
-    super.dispose();
+    tabController.removeListener(_handleTabIndex);
     tabController.dispose();
+    super.dispose();
+
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -70,55 +81,62 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            title: const Text(
-              'Chatter',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
+        appBar: AppBar(
+          elevation: 0,
+          centerTitle: false,
+          title: const Text(
+            'Chatter',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
-            actions: [
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.search,
-                    color: Colors.grey,
-                  )),
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: Colors.grey,
-                  ))
-            ],
-            bottom: const TabBar(
-                indicatorColor: tabColor,
-                indicatorWeight: 4,
-                labelColor: tabColor,
-                unselectedLabelColor: Colors.grey,
-                labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                tabs: [
-                  Tab(text: 'CHATS'),
-                  Tab(text: 'STATUS'),
-                  Tab(text: 'CALLS'),
-                ]),
           ),
-          body: TabBarView(controller: tabController, children: const [
-            ContactsList(),
-            SelectContactScreen(),
-            Text('CALLS'),
-          ]),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => floatingActionButtonPressed(tabController.index),
-            backgroundColor: tabColor,
-            child: const Icon(
-              Icons.comment,
-              color: Colors.white,
-            ),
-          )),
+          actions: [
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                )),
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Colors.grey,
+                ))
+          ],
+          bottom: TabBar(
+              controller: tabController, // to sync tabs with their view have controller on both
+
+              indicatorColor: tabColor,
+              indicatorWeight: 4,
+              labelColor: tabColor,
+              unselectedLabelColor: Colors.grey,
+              labelStyle: TextStyle(fontWeight: FontWeight.bold),
+              tabs: const [
+                Tab(text: 'CHATS'),
+                Tab(text: 'STATUS'),
+                Tab(text: 'CALLS'),
+              ]),
+        ),
+        body: TabBarView(controller: tabController, children: const [
+          ContactsList(),
+          StatusContactScreen(),
+          Text('CALLS'),
+        ]),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => floatingActionButtonPressed(tabController.index),
+          // based  on tab index, we will route to different screens
+          backgroundColor: tabColor,
+          child: Icon(
+            tabController.index == 0
+                ? Icons.comment
+                : (tabController.index == 1 ? Icons.camera_alt_rounded : Icons.call),
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 }

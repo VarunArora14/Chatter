@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatsapp_ui/constants/colors.dart';
 
 class ConfirmStatusScreen extends ConsumerWidget {
   static const routeName = '/confirm_status';
@@ -11,6 +12,19 @@ class ConfirmStatusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        // aspct ratio here matters and show the image here and use Image.file to show the image
+        child: AspectRatio(aspectRatio: 9 / 16, child: Image.file(file)),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: tabColor,
+        child: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 }
