@@ -55,8 +55,6 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
 
   @override
   void dispose() {
-    tabController.removeListener(_handleTabIndex);
-    tabController.dispose();
     super.dispose();
 
     WidgetsBinding.instance.removeObserver(this);
@@ -108,7 +106,6 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
           ],
           bottom: TabBar(
               controller: tabController, // to sync tabs with their view have controller on both
-
               indicatorColor: tabColor,
               indicatorWeight: 4,
               labelColor: tabColor,

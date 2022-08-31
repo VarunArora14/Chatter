@@ -13,6 +13,7 @@ class ConfirmStatusScreen extends ConsumerWidget {
   const ConfirmStatusScreen({Key? key, required this.file}) : super(key: key);
 
   void addStatus(WidgetRef ref, BuildContext context) {
+    debugPrint('confirm status screen button pressed');
     // pass the file to the controller to upload it to firebase
     ref.read(statusControllerProvider).addStatus(context, file);
     // remove the prev screens

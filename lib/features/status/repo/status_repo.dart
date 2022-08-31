@@ -39,6 +39,7 @@ class StatusRepository {
       required BuildContext context}) async {
     // upload status to firebase storage and get the url of the image
     try {
+      debugPrint('repo method of upload status started');
       var statusId = Uuid().v1(); // generate unique id for status based on time(v1)
       String userId = auth.currentUser!.uid; // get the current user id, cannot be null
 
@@ -60,27 +61,31 @@ class StatusRepository {
       List<String> visibleContactsList = []; // list of contact ids who will see this status
 
       // loop through every contact and see if they are on our application database
-      for (int i = 100; i < contacts.length; i++) {
+      for (int i = 1; i < contacts.length; i++) {
         log('${contacts[i].displayName} : ${contacts[i].phones[0].number}');
       }
 
+      debugPrint('contact loop ended');
+
       for (int i = 100; i < contacts.length; i++) {
-        var userDoc = await FirebaseFirestore.instance.collection('users').get();
-        debugPrint('${userDoc.size}');
+        debugPrint('hello loop');
         var userDataDoc = await firestore
             .collection('users') // go to users collection and check if phone number matches with any in database
-            .where('phoneNumber', // 'where' clause/query to check if phone number matches with any in database
-                isEqualTo: "+917982097855"
-                // contacts[i].phones[0].number.replaceAll(' ', ''), // replace all spaces with empty string
-                ) // for each contact[i] we use the phone[0] for main number and check the 'number' in firestore
+            .where(
+              'phoneNumber', // 'where' clause/query to check if phone number matches with any in database
+              isEqualTo: contacts[i].phones[0].number.replaceAll(' ', ''), // replace all spaces with empty string
+            ) // for each contact[i] we use the phone[0] for main number and check the 'number' in firestore
             .get(); // get all the users who have this phone number
         debugPrint(userDataDoc.toString());
+        if (userDataDoc.docs.isEmpty) {
+          debugPrint('no user found');
+        }
         // check if these docs are not empty and add user's contacts to visibleContactList
         if (userDataDoc.docs.isNotEmpty) {
           debugPrint(userDataDoc.docs[0].data().toString());
           var userData = UserModel.fromMap(userDataDoc.docs[0].data());
           // get the first doc and convert it to user model(although there should be only one doc)
-          visibleContactsList.add(userData.uid); // add the user id to the list of visible contacts
+          visibleContactsList.add(userData.userId); // add the user id to the list of visible contacts
         }
       }
       debugPrint('visible Contacts length is ${visibleContactsList.length}');

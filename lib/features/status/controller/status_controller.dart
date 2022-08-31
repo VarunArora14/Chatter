@@ -19,6 +19,7 @@ class StatusController {
 
   /// controller method to get upload status to firebase via statusRepoProvider
   void addStatus(BuildContext context, File statusImage) async {
+    debugPrint('controller method of add status');
     // get user data using Future provider to get the name, profilePic and phoneNumber
     ref.watch(userDataProvider).whenData((value) {
       return statusRepo.uploadStatus(
