@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:whatsapp_ui/features/status/models/status_model.dart';
 
 import 'package:whatsapp_ui/features/status/repo/status_repo.dart';
 
@@ -29,5 +30,10 @@ class StatusController {
           statusImage: statusImage,
           context: context);
     });
+  }
+
+  Future<List<StatusModel>> getStatus(BuildContext context) async {
+    List<StatusModel> statuses = await ref.read(statusRepoProvider).getStatus(context);
+    return statuses;
   }
 }

@@ -1,10 +1,7 @@
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -40,7 +37,7 @@ class StatusRepository {
     // upload status to firebase storage and get the url of the image
     try {
       debugPrint('repo method of upload status started');
-      var statusId = Uuid().v1(); // generate unique id for status based on time(v1)
+      var statusId = const Uuid().v1(); // generate unique id for status based on time(v1)
       String userId = auth.currentUser!.uid; // get the current user id, cannot be null
 
       // now we have to store this pic to storage
@@ -60,32 +57,20 @@ class StatusRepository {
       }
       List<String> visibleContactsList = []; // list of contact ids who will see this status
 
-      // loop through every contact and see if they are on our application database
-      for (int i = 1; i < contacts.length; i++) {
-        log('${contacts[i].displayName} : ${contacts[i].phones[0].number}');
-      }
-
-      debugPrint('contact loop ended');
-
-      for (int i = 100; i < contacts.length; i++) {
-        debugPrint('hello loop');
-        var userDataDoc = await firestore
+      for (int i = 0; i < contacts.length; i++) {
+        var statusesSnapshot = await firestore
             .collection('users') // go to users collection and check if phone number matches with any in database
             .where(
               'phoneNumber', // 'where' clause/query to check if phone number matches with any in database
               isEqualTo: contacts[i].phones[0].number.replaceAll(' ', ''), // replace all spaces with empty string
             ) // for each contact[i] we use the phone[0] for main number and check the 'number' in firestore
             .get(); // get all the users who have this phone number
-        debugPrint(userDataDoc.toString());
-        if (userDataDoc.docs.isEmpty) {
-          debugPrint('no user found');
-        }
         // check if these docs are not empty and add user's contacts to visibleContactList
-        if (userDataDoc.docs.isNotEmpty) {
-          debugPrint(userDataDoc.docs[0].data().toString());
-          var userData = UserModel.fromMap(userDataDoc.docs[0].data());
+        if (statusesSnapshot.docs.isNotEmpty) {
+          // debugPrint(statusesSnapshot.docs[0].data().toString());
+          var statusData = UserModel.fromMap(statusesSnapshot.docs[0].data());
           // get the first doc and convert it to user model(although there should be only one doc)
-          visibleContactsList.add(userData.userId); // add the user id to the list of visible contacts
+          visibleContactsList.add(statusData.uid); // add the user id to the list of visible contacts
         }
       }
       debugPrint('visible Contacts length is ${visibleContactsList.length}');
@@ -140,7 +125,48 @@ class StatusRepository {
 // we want to upload status so follow these steps - 1. The status uploaded by us should be visible to only our
 // contacts so add those contacts to a list, check if our contacts phNo matches users in current user's contact list
 // Check if status already exists add image to list of existing images else add the only image of status
-// Create a status model
+// Create a status model and have statusUrl in that model and upload to firebase
+
+  /// repo method to get all status of current user's contacts and show them on our status screen
+  Future<List<StatusModel>> getStatus(BuildContext context) async {
+    List<StatusModel> statusList = []; // list to store status model objects
+    try {
+      // get all status of contacts of current user on firebase
+      List<Contact> contacts = [];
+      if (await FlutterContacts.requestPermission()) // request permission to access contacts
+      {
+        contacts = await FlutterContacts.getContacts(withProperties: true); // get all contacts
+      }
+
+      for (int i = 0; i < contacts.length; i++) {
+        // retrieve the status map for each valid contact
+        var statusesSnapshot = await firestore
+            .collection('status') // go to users collection and check if phone number matches with any in database
+            .where(
+              'phoneNumber', // 'where' clause/query to check if phone number matches with any in database
+              isEqualTo: contacts[i].phones[0].number.replaceAll(' ', ''), // replace all spaces with empty string
+            ) // check if createTime is more than 24 hours ago, convert to milliseconds as that is how we store it in firebase
+            .where('createTime',
+                isGreaterThan: DateTime.now().subtract(const Duration(hours: 24)).millisecondsSinceEpoch)
+            // for each contact[i] we use the phone[0] for main number and check the 'number' in firestore
+            .get();
+
+        // do not return empty array here as this is inside loop
+        for (var statusData in statusesSnapshot.docs) {
+          // convert it to status model and add to list
+          StatusModel currStatus = StatusModel.fromMap(statusData.data());
+          if (currStatus.visibleContacts.contains(auth.currentUser!.uid)) {
+            // if the contact list of our contacts have our user id then add it's status to list
+            statusList.add(currStatus);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      showSnackBar(context: context, message: e.toString());
+    }
+    return statusList; // return this Future list  of status models
+  }
 }
 
 // FirebaseAuth is for user authentication and authorisation

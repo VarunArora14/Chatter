@@ -7,8 +7,10 @@ import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/user_info_screen.dart';
 import 'package:whatsapp_ui/features/select_contacts/screens/select_contact_screen.dart';
 import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
+import 'package:whatsapp_ui/features/status/models/status_model.dart';
 import 'package:whatsapp_ui/features/status/screens/confirm_status.dart';
 import 'package:whatsapp_ui/features/status/screens/status_contact_screen.dart';
+import 'package:whatsapp_ui/features/status/screens/status_screen.dart';
 
 /// function to route based on route name along with passing arguments
 Route<dynamic>? generateRoute(RouteSettings routeSettings) {
@@ -40,6 +42,10 @@ Route<dynamic>? generateRoute(RouteSettings routeSettings) {
     case ConfirmStatusScreen.routeName:
       File imageFile = routeSettings.arguments as File; // pass the argument file which has to be non null
       return MaterialPageRoute(builder: (context) => ConfirmStatusScreen(file: imageFile));
+
+    case StatusScreen.routeName:
+      final status = routeSettings.arguments as StatusModel; // take mdodel as argument
+      return MaterialPageRoute(builder: (context) => StatusScreen(status: status));
 
     default:
       return MaterialPageRoute(builder: (context) => const ErrorPage(errortext: 'Wrong route name provided'));

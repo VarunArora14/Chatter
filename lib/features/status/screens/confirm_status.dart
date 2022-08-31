@@ -17,8 +17,8 @@ class ConfirmStatusScreen extends ConsumerWidget {
     // pass the file to the controller to upload it to firebase
     ref.read(statusControllerProvider).addStatus(context, file);
     // remove the prev screens
-    // Navigator.pop(context);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const MobileLayout()));
+    Navigator.pop(context);
+    // Navigator.push(context, MaterialPageRoute(builder: (context) => const MobileLayout()));
   }
 
   @override
