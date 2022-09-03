@@ -27,11 +27,14 @@ class DisplayMessageCard extends StatelessWidget {
         return Padding(
             // network image as it has the imge here has firebase url as messageData which we try to cache and show
             padding: const EdgeInsets.only(bottom: 20),
-            child: CachedNetworkImage(imageUrl: messageData));
+            child: SizedBox(height: 250, child: CachedNetworkImage(imageUrl: messageData)));
       case MessageEnum.video:
         return VideoPlayerWidget(videoUrl: messageData); // here messageData will be url sent by firebase
       case MessageEnum.gif:
-        return CachedNetworkImage(imageUrl: messageData); // works same for gif as image
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: CachedNetworkImage(imageUrl: messageData),
+        ); // works same for gif as image
       default:
         return Text(
           messageData,

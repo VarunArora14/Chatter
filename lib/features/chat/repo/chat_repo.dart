@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -76,40 +77,45 @@ class ChatRepository {
   /// private method accesible from sendTextMessage() to display new messages on top of screen for both sender and receiver
   void _saveDataToContactSubcollection(
       UserModel sender, UserModel reciever, String messageText, DateTime timeSent) async {
-    // for new message, we need to to send 2 requests, first for reciever to get chats and set data in StreamBuilder like below
-    // users ->  reciever user id -> chats -> sender id -> set data(for viewing last message on top of contact_screen)
-    var recieverContact = ChatContactModel(
-        name: sender.name,
-        profilePic: sender.profilePic,
-        timeSent: timeSent,
-        contactId: sender.uid,
-        lastMessage: messageText); // view last message on contact_screen to show latest messages on top of screen
+    try {
+      // for new message, we need to to send 2 requests, first for reciever to get chats and set data in StreamBuilder like below
+      // users ->  reciever user id -> chats -> sender id -> set data(for viewing last message on top of contact_screen)
+      var recieverContact = ChatContactModel(
+          name: sender.name,
+          profilePic: sender.profilePic,
+          timeSent: timeSent,
+          contactId: sender.uid,
+          lastMessage:
+              messageText); // view last message on contact_screen to show latest messages on top of screen
 
-    await firestore
-        .collection('users')
-        .doc(reciever.uid) // store this data in reciever id
-        .collection('chats') // have collection named chats for each reciever
-        .doc(sender.uid) // have a document for each user by their senderId
-        .set(recieverContact.toMap()); // save to reciever's collection converting to map
+      await firestore
+          .collection('users')
+          .doc(reciever.uid) // store this data in reciever id
+          .collection('chats') // have collection named chats for each reciever
+          .doc(sender.uid) // have a document for each user by their senderId
+          .set(recieverContact.toMap()); // save to reciever's collection converting to map
 
-    // then do same for sender user id
-    // users -> sender user id -> chats ->reciever id -> set data(for viewing last message on top of contact_screen)
-    // do reverse of above for sender
-    var senderContact = ChatContactModel(
-        name: reciever.name,
-        profilePic: reciever.profilePic,
-        timeSent: timeSent,
-        contactId: reciever.uid,
-        lastMessage: messageText); // send this contact model to collection
+      // then do same for sender user id
+      // users -> sender user id -> chats ->reciever id -> set data(for viewing last message on top of contact_screen)
+      // do reverse of above for sender
+      var senderContact = ChatContactModel(
+          name: reciever.name,
+          profilePic: reciever.profilePic,
+          timeSent: timeSent,
+          contactId: reciever.uid,
+          lastMessage: messageText); // send this contact model to collection
 
-    await firestore
-        .collection('users')
-        .doc(sender.uid) // save to current user doc
-        .collection('chats') // have chats collection for sender
-        .doc(reciever.uid) // document for chat from sender to reciever
-        .set(senderContact.toMap()); // send mapped data to collection
+      await firestore
+          .collection('users')
+          .doc(sender.uid) // save to current user doc
+          .collection('chats') // have chats collection for sender
+          .doc(reciever.uid) // document for chat from sender to reciever
+          .set(senderContact.toMap()); // send mapped data to collection
 
-    // this receiverContact and senderContact  map will contain the last sent message and time sent of that msg
+      // this receiverContact and senderContact  map will contain the last sent message and time sent of that msg
+    } catch (e) {
+      print('save message to contact error: ${e.toString()}');
+    }
   }
 
   /// save messages sent by sender to message subcollection of the reciever's 'messages' collection through
@@ -124,46 +130,50 @@ class ChatRepository {
       required MessageReply? messageReply, // if current message is a reply to another message,null if not a reply
       // required MessageEnum replyMessageType,
       required MessageEnum messageType}) async {
-    // for each message we need to save to message subcollection based on the message model we created
-    final message = MessageModel(
-      senderId: auth.currentUser!.uid, // current user and senderUser in below func will point to same senderid
-      recieverId: recieverId,
-      messageText: messageText,
-      timeSent: timeSent,
-      isSeen: false, // change value based  on logic
-      messageType: messageType,
-      messageId: messageId,
-      replyMessageText: (messageReply == null) ? '' : messageReply.messageData, // if null then no text else text
-      repliedUser: (messageReply == null)
-          ? ''
-          : ((messageReply.isMe) ? senderName : recieverName), // if null then no text else text
+    try {
+      // for each message we need to save to message subcollection based on the message model we created
+      final message = MessageModel(
+        senderId: auth.currentUser!.uid, // current user and senderUser in below func will point to same senderid
+        recieverId: recieverId,
+        messageText: messageText,
+        timeSent: timeSent,
+        isSeen: false, // change value based  on logic
+        messageType: messageType,
+        messageId: messageId,
+        replyMessageText: (messageReply == null) ? '' : messageReply.messageData, // if null then no text else text
+        repliedUser: (messageReply == null)
+            ? ''
+            : ((messageReply.isMe) ? senderName : recieverName), // if null then no text else text
 // null check so no exception if no messageReply is null
-      replyMessageType: (messageReply == null)
-          ? MessageEnum.text
-          : messageReply.messageType, // type taken from constructor of function
-    );
+        replyMessageType: (messageReply == null)
+            ? MessageEnum.text
+            : messageReply.messageType, // type taken from constructor of function
+      );
 
-    // do the below 2 times as we need to show stuff for both users
-    // users -> senderUserId -> messages -> receiverUserId -> messages collection -> messageId -> store message
-    await firestore
-        .collection('users') // common collection for all users
-        .doc(auth.currentUser!.uid) // in the document of current user or senderId(same thing)
-        .collection('chats') // access the chats collection
-        .doc(recieverId) // and access the recieverId for accessing chats with recieverId
-        .collection('messages') // this collection has the messages btw sender and reciever
-        .doc(messageId) // store message in this random generated messageId
-        .set(message.toMap()); // map the message to map and save to collection
+      // do the below 2 times as we need to show stuff for both users
+      // users -> senderUserId -> messages -> receiverUserId -> messages collection -> messageId -> store message
+      await firestore
+          .collection('users') // common collection for all users
+          .doc(auth.currentUser!.uid) // in the document of current user or senderId(same thing)
+          .collection('chats') // access the chats collection
+          .doc(recieverId) // and access the recieverId for accessing chats with recieverId
+          .collection('messages') // this collection has the messages btw sender and reciever
+          .doc(messageId) // store message in this random generated messageId
+          .set(message.toMap()); // map the message to map and save to collection
 
-    // users -> recieverUserId -> messages/chats -> senderUserId  -> messages collection -> messageId -> store message
+      // users -> recieverUserId -> messages/chats -> senderUserId  -> messages collection -> messageId -> store message
 
-    await firestore
-        .collection('users')
-        .doc(recieverId) // this time we store this data in reciever so they can see it on their screen
-        .collection('chats') // collection name for messages
-        .doc(auth.currentUser!.uid) // document for sender as being viewed by reciever
-        .collection('messages') // collection for messages inside chats for each user reciever chats to
-        .doc(messageId) // store message in this random generated messageId
-        .set(message.toMap());
+      await firestore
+          .collection('users')
+          .doc(recieverId) // this time we store this data in reciever so they can see it on their screen
+          .collection('chats') // collection name for messages
+          .doc(auth.currentUser!.uid) // document for sender as being viewed by reciever
+          .collection('messages') // collection for messages inside chats for each user reciever chats to
+          .doc(messageId) // store message in this random generated messageId
+          .set(message.toMap());
+    } catch (e) {
+      print('save message to subcollection error ${e.toString()}');
+    }
   }
 
   /// send text message of current user to the other user while storing in firestore
@@ -178,6 +188,7 @@ class ChatRepository {
     // we want more of sender than just id and name, so we need to get more info from senderUser
 
     try {
+      debugPrint('repo mathod called');
       var timeSent = DateTime.now(); // get the time when message is sent
       UserModel receiverUserData; // get the receiver user data using recieverid
 
@@ -200,6 +211,7 @@ class ChatRepository {
           messageReply: messageReply,
           messageType: MessageEnum.text);
     } catch (e) {
+      print(e.toString());
       showSnackBar(context: context, message: 'Send text message failed: ${e.toString()}');
     }
   }

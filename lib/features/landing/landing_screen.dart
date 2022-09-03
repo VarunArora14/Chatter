@@ -27,7 +27,7 @@ class LandingPage extends StatelessWidget {
               height: size.height / 12,
             ),
             const Text(
-              'Welcome to the Chatter',
+              'Welcome to Chatter',
               style: TextStyle(fontSize: 30),
             ),
             SizedBox(

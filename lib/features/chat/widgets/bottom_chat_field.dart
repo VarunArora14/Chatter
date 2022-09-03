@@ -63,6 +63,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     // check if message can be sent or not
     if (showSendButton == true) {
       // trim extra whitespaces after end
+      debugPrint('text field send button clicked');
       ref.read(chatControllerProvider).sendTextMessage(context, _textController.text.trim(), widget.recieverId);
       ref.read(messageReplyProvider.state).update((state) => null); // clear the reply view
       setState(() {

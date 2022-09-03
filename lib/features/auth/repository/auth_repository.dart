@@ -35,6 +35,7 @@ class AuthRepository {
     if (userData.data() != null) {
       user = UserModel.fromMap(userData.data()!); // can be null
     }
+    debugPrint('user data sent');
     return user;
   }
 

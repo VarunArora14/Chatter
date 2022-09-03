@@ -36,16 +36,19 @@ class ChatController {
 
   /// controller method to send text message to the reciever via chatRepository
   void sendTextMessage(BuildContext context, String messageText, String recieverId) {
+    debugPrint('chat controller method called');
     // Here check if current message is a reply or not, ref from constructor to interact
     final messagReply = ref.read(messageReplyProvider); // ProviderRef used here to interact with other providers
-    ref.read(userDataProvider).whenData(
-          (value) => chatRepository.sendTextMessage(
-              context: context,
-              text: messageText,
-              recieverId: recieverId,
-              senderUser: value!,
-              messageReply: messagReply),
-        );
+    debugPrint('after message reply provider read');
+    ref.read(userDataProvider).whenData((value) {
+      debugPrint('after user data provider read');
+      return chatRepository.sendTextMessage(
+          context: context,
+          text: messageText,
+          recieverId: recieverId,
+          senderUser: value!,
+          messageReply: messagReply);
+    });
 // we cannot get senderUser model which is Future from a screen so we use userDataProvider for that
 // read from userDataProvider which watches authControllerProvider and returns user data
 // the reason we use userDataProvider is because it is a FutureProvider and we want to return a Future

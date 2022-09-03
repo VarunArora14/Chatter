@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "192158545602-vt6lfpqhmbuc6jfnc6osnj0gkrahmbjo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.whatsapp_ui",
+            "certificate_hash": "e2a511a1468900d45f73674597b93eafbcba7d0c"
+          }
+        },
+        {
           "client_id": "192158545602-grd84qqldjeemqnbm4qrsu6i1r63qvqo.apps.googleusercontent.com",
           "client_type": 3
         }

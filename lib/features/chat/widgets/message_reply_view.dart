@@ -1,6 +1,7 @@
 // how the replied message is viewed
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatsapp_ui/common/enums/message_enums.dart';
 import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/constants/colors.dart';
 import 'package:whatsapp_ui/features/chat/widgets/display_message_card.dart';
