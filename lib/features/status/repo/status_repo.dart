@@ -132,10 +132,16 @@ class StatusRepository {
     List<StatusModel> statusList = []; // list to store status model objects
     try {
       // get all status of contacts of current user on firebase
-      List<Contact> contacts = [];
+      List<Contact> contacts = [], allContacts = [];
       if (await FlutterContacts.requestPermission()) // request permission to access contacts
       {
-        contacts = await FlutterContacts.getContacts(withProperties: true); // get all contacts
+        allContacts = await FlutterContacts.getContacts(withProperties: true); // get all contacts
+        for (var contact in allContacts) {
+          // add only those contacts which have phone number
+          if (contact.phones.isNotEmpty) {
+            contacts.add(contact);
+          }
+        }
       }
 
       for (int i = 0; i < contacts.length; i++) {
@@ -146,8 +152,8 @@ class StatusRepository {
               'phoneNumber', // 'where' clause/query to check if phone number matches with any in database
               isEqualTo: contacts[i].phones[0].number.replaceAll(' ', ''), // replace all spaces with empty string
             ) // check if createTime is more than 24 hours ago, convert to milliseconds as that is how we store it in firebase
-            .where('createTime',
-                isGreaterThan: DateTime.now().subtract(const Duration(hours: 24)).millisecondsSinceEpoch)
+            // .where('createTime',
+            //     isGreaterThan: DateTime.now().subtract(const Duration(hours: 24)).millisecondsSinceEpoch)
             // for each contact[i] we use the phone[0] for main number and check the 'number' in firestore
             .get();
 

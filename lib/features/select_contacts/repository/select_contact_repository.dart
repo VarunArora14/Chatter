@@ -20,16 +20,22 @@ class SelectContactRepository {
   });
 
   Future<List<Contact>> getData() async {
-    List<Contact> contacts = [];
+    List<Contact> contacts = [], phoneContacts = [];
     try {
       if (await FlutterContacts.requestPermission()) {
         // if this withProperties is not true then selectedContact.phone[0].number will be null or empty string
         contacts = await FlutterContacts.getContacts(withProperties: true);
+        for (var contact in contacts) {
+          // add only those contacts which have phone number
+          if (contact.phones.isNotEmpty) {
+            phoneContacts.add(contact);
+          }
+        }
       }
     } catch (e) {
       debugPrint(e.toString());
     }
-    return contacts;
+    return phoneContacts;
   }
 
   /// method for selecting reciever contact and checking if contact in database and based on that take to their chat screen or show snackbar error

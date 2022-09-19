@@ -23,6 +23,7 @@ class ContactsList extends ConsumerWidget {
               return const Loader();
             }
             return ListView.builder(
+              physics: BouncingScrollPhysics(),
               shrinkWrap: true,
               itemCount: snapshot.data!.length, // use snapshot which is type List<ChatContactModel> and not null
               itemBuilder: (context, index) {
