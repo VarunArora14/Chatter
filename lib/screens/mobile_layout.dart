@@ -53,12 +53,12 @@ class _MobileLayoutState extends ConsumerState<MobileLayout>
     WidgetsBinding.instance.addObserver(this); // add this to listen to the widget, hover 'this' to see widget
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  // @override
+  // void dispose() {
+  //   super.dispose();
 
-    WidgetsBinding.instance.removeObserver(this);
-  }
+  //   WidgetsBinding.instance.removeObserver(this);
+  // }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {

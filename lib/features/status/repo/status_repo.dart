@@ -55,9 +55,14 @@ class StatusRepository {
         contacts = await FlutterContacts.getContacts(withProperties: true); // stores all contacts in list
         // their properties are needed to show status to them
       }
+      debugPrint('contacts: ${contacts.length}');
       List<String> visibleContactsList = []; // list of contact ids who will see this status
 
       for (int i = 0; i < contacts.length; i++) {
+        debugPrint("$i ${contacts[i].phones[0].number}");
+        if (contacts[i].phones.isEmpty) continue;
+        visibleContactsList.add(contacts[i].phones[0].number);
+
         var statusesSnapshot = await firestore
             .collection('users') // go to users collection and check if phone number matches with any in database
             .where(
@@ -74,7 +79,7 @@ class StatusRepository {
         }
       }
       debugPrint('visible Contacts length is ${visibleContactsList.length}');
-
+// TODO: Error comes saying range value: 0 if any contact does not have phones[0].number, remove that contact or find solution to this
       List<String> statusImageUrls = []; // list to store image urls of all the photos user wants to post as status
       var statusSnapshots = await firestore
           .collection('status')
